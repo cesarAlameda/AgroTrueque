@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Logueo">
+
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/imageView"
+        android:layout_width="153dp"
+        android:layout_height="133dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="76dp"
+        android:src="@drawable/perfil"
+        android:tintMode="screen"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="357dp"
+        android:layout_height="54dp"
+        android:layout_marginTop="32dp"
+        android:text="¡Bienvenido de nuevo!"
+        android:textAlignment="center"
+        android:textColor="#436B1C"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+    <TextView
+        android:id="@+id/textView14"
+        android:layout_width="161dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="24dp"
+        android:text="Correo electrónico"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.108"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+    <EditText
+        android:id="@+id/editTextTextEmailAddress"
+        android:layout_width="363dp"
+        android:layout_height="49dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bordeparaeditext"
+        android:ems="10"
+        android:hint="tuemail@gmail.com"
+        android:inputType="textEmailAddress"
+        android:padding="12dp"
+        android:textColor="#000000"
+        android:textColorHint="#888888"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.562"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView14" />
+
+
+    <TextView
+        android:id="@+id/textView15"
+        android:layout_width="161dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="12dp"
+        android:text="Contraseña"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.108"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextTextEmailAddress" />
+
+    <EditText
+        android:id="@+id/edittextpassword"
+        android:layout_width="363dp"
+        android:layout_height="49dp"
+        android:background="@drawable/bordeparaeditext"
+        android:ems="10"
+        android:inputType="text|textPassword"
+        android:padding="12dp"
+        android:textColor="#000000"
+        android:textColorHint="#888888"
+        android:textIsSelectable="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView15" />
+
+    <Button
+        android:id="@+id/btnInicio"
+        android:layout_width="364dp"
+        android:layout_height="65dp"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="#436B1C"
+        android:text="Iniciar Sesión"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.51"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edittextpassword" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
