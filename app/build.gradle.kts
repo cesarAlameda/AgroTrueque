@@ -43,6 +43,7 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation ("de.hdodenhof:circleimageview:3.1.0")
+    implementation(libs.activity)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
