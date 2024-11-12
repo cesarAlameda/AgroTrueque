@@ -42,8 +42,14 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-    implementation ("de.hdodenhof:circleimageview:3.1.0")
     implementation(libs.activity)
+
+
+
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
+    implementation ("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

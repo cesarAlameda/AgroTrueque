@@ -52,7 +52,7 @@ public class Logueo extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(Logueo.this, RegistroUsuario.class);
                 startActivity(intent);
-                finish();
+
             }
         });
 
