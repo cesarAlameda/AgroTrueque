@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,9 +25,15 @@ public class Logueo extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        //declaracion de variables
+        Button btnInicio=findViewById(R.id.btnInicio);
+        TextView tvRegistro=findViewById(R.id.TVregistro);
+
+
+
 
         //ALL LO RELACIONADO CON EL TEMA DE DARLE AL BOTON DE INICIO DE SESIÓN
-        Button btnInicio=findViewById(R.id.btnInicio);
+
         btnInicio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -36,6 +44,18 @@ public class Logueo extends AppCompatActivity {
                 finish();
             }
         });
+
+
+        //ALL LO RELACIONADO CON EL REGISTRARSE
+        tvRegistro.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Logueo.this, RegistroUsuario.class);
+                startActivity(intent);
+
+            }
+        });
+
 
 
 
