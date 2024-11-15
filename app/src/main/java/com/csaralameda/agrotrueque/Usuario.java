@@ -1,15 +1,20 @@
 package com.csaralameda.agrotrueque;
 
+import android.graphics.Bitmap;
+
 public class Usuario {
 
     //ATRIBUTOS DE USUARIO
     private int idUsuario;
+    private Bitmap fotoUsuario;
     private String nombreUsuario;
     private String correoUsuario;
     private int nIntercambios;
     private int nAnuncios;
     private Float valoracion;
     private String password;
+
+
 
     //GETTER Y SETTER
     public int getIdUsuario() {
@@ -19,6 +24,10 @@ public class Usuario {
     public void setIdUsuario(int idUsuario) {
         this.idUsuario = idUsuario;
     }
+
+    public Bitmap getFotoUsuario() {return fotoUsuario;}
+
+    public void setFotoUsuario(Bitmap fotoUsuario) {this.fotoUsuario = fotoUsuario;}
 
     public String getCorreoUsuario() {
         return correoUsuario;
@@ -69,16 +78,16 @@ public class Usuario {
     }
 
     //CONSTRUCTOR CON TODOS LOS PARAMETROS
-    public Usuario(int idUsuario, String nombreUsuario, String correoUsuario, int nIntercambios, Float valoracion, String password, int nAnuncios) {
+    public Usuario(int idUsuario, String password, Float valoracion, int nAnuncios, Bitmap fotoUsuario, String nombreUsuario, String correoUsuario, int nIntercambios) {
         this.idUsuario = idUsuario;
+        this.password = password;
+        this.valoracion = valoracion;
+        this.nAnuncios = nAnuncios;
+        this.fotoUsuario = fotoUsuario;
         this.nombreUsuario = nombreUsuario;
         this.correoUsuario = correoUsuario;
         this.nIntercambios = nIntercambios;
-        this.valoracion = valoracion;
-        this.password = password;
-        this.nAnuncios = nAnuncios;
     }
-
     //CONSTRUCTOR VACÍO
     public Usuario(){}
 
