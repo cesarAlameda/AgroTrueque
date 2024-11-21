@@ -1,4 +1,4 @@
-package com.csaralameda.agrotrueque;
+package com.csaralameda.agrotrueque.DataService;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

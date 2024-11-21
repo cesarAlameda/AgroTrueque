@@ -1,4 +1,4 @@
-package com.csaralameda.agrotrueque;
+package com.csaralameda.agrotrueque.Interfaces;
 
 
 public interface ApiService {
