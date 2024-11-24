@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -34,14 +35,26 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.csaralameda.agrotrueque.DataService.RetrofitClient;
+import com.csaralameda.agrotrueque.Interfaces.ApiService;
+import com.google.gson.JsonObject;
+
 import java.io.IOException;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class RegistroUsuario extends AppCompatActivity {
     //TODO:OPCION DE ELEGIR UNA FOTO DE GALERÍA (ACTUALMENTE NO FUNCIONA)
     private static final int FOTO = 1;
     private static final int GALERIA=2;
+    private static final int NEDITEXT=4;
+    private EditText[] EditTextArray;
     ImageView imgviewregistro;
     Uri urimagen;
+    private String mensaje;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,10 +68,17 @@ public class RegistroUsuario extends AppCompatActivity {
             return insets;
         });
         //Declaro variables
+        mensaje="";
         TextView tvInicio=findViewById(R.id.tvInicio);
         Button btnRegistro=findViewById(R.id.btnRegistro);
         imgviewregistro=findViewById(R.id.imageView9);
 
+        //array de editexts
+        EditTextArray = new EditText[NEDITEXT];
+        EditTextArray[0] = findViewById(R.id.EDuser);
+        EditTextArray[1] = findViewById(R.id.edEmail);
+        EditTextArray[2] = findViewById(R.id.edPass);
+        EditTextArray[3] = findViewById(R.id.edPassconfirmado);
 
 
 
@@ -73,7 +93,65 @@ public class RegistroUsuario extends AppCompatActivity {
         btnRegistro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(RegistroUsuario.this, "Registrado", Toast.LENGTH_SHORT).show();
+
+
+                if(validarCampos()){
+                    insertarUsuario();
+                }
+
+            }
+            private void insertarUsuario() {
+                Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
+                ApiService apiService = retrofit.create(ApiService.class);
+
+                // Asumiendo que los EditTextArray están en este orden:
+                // 0: username, 1: email, 2: password, 3: confirmed password
+                String username = EditTextArray[0].getText().toString().trim();
+                String email = EditTextArray[1].getText().toString().trim();
+                String password = EditTextArray[2].getText().toString().trim();
+                // Por ahora enviamos una cadena vacía para la foto
+                String photoUrl = "";
+
+                Call<JsonObject> call = apiService.registrarUser(
+                        username,    // nombreUsuario
+                        email,       // correoUsuario
+                        password,    // password
+                        photoUrl     // fotoUsuario
+                );
+
+                call.enqueue(new Callback<JsonObject>() {
+                    @Override
+                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            Log.d("RESPUESTA_BODY", response.body().toString());
+                            String status = response.body().get("status").getAsString();
+                            mensaje = response.body().get("message").getAsString();
+
+                            if ("success".equals(status)) {
+                                Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
+
+                                Intent intent = new Intent(RegistroUsuario.this, MainActivity.class);
+                                intent.putExtra("logueado",true);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(getApplicationContext(),
+                                    "Error en la respuesta del servidor",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<JsonObject> call, Throwable t) {
+                        Toast.makeText(getApplicationContext(),
+                                "Error de conexión: " + t.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                        Log.e("ERROR", "Error: " + t.getMessage());
+                    }
+                });
             }
         });
 
@@ -89,6 +167,45 @@ public class RegistroUsuario extends AppCompatActivity {
         });
 
     }
+
+    private boolean validarCampos() {
+
+        // Validar correo electrónico
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(EditTextArray[1].getText().toString()).matches()) {
+            Toast.makeText(this, "El correo electrónico no es válido", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        // Validar contraseña
+        if (EditTextArray[2].getText().toString().length() < 8) {
+            Toast.makeText(this, "La contraseña debe tener al menos 8 caracteres", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (!EditTextArray[2].getText().toString().matches(".*[A-Z].*")) {
+            Toast.makeText(this, "La contraseña debe contener al menos una letra mayúscula", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (!EditTextArray[2].getText().toString().matches(".*\\d.*")) {
+            Toast.makeText(this, "La contraseña debe contener al menos un número", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if(!EditTextArray[2].getText().toString().equals(EditTextArray[3].getText().toString())){
+            Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+
+
+
+        return true;
+
+
+    }
+
+
 
     private void verificarpedirpermisosCamaraGaleria() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED ) {
