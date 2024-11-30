@@ -33,7 +33,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
     <EditText
-        android:id="@+id/editTextTextEmailAddress"
+        android:id="@+id/edMailLog"
         android:layout_width="363dp"
         android:layout_height="49dp"
         android:layout_marginTop="8dp"
@@ -58,10 +58,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.084"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextEmailAddress" />
+        app:layout_constraintTop_toBottomOf="@+id/edMailLog" />
 
     <EditText
-        android:id="@+id/edittextpassword"
+        android:id="@+id/edPassLog"
         android:layout_width="363dp"
         android:layout_height="49dp"
         android:layout_marginTop="8dp"
@@ -116,7 +116,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.879"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edittextpassword" />
+        app:layout_constraintTop_toBottomOf="@+id/edPassLog" />
 
     <TextView
         android:id="@+id/TVregistro"

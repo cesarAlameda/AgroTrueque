@@ -1,8 +1,14 @@
 package com.csaralameda.agrotrueque;
 
 import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class Usuario {
+import androidx.annotation.NonNull;
+
+import java.io.Serializable;
+
+public class Usuario implements Parcelable, Serializable {
 
     //ATRIBUTOS DE USUARIO
     private int idUsuario;
@@ -13,6 +19,7 @@ public class Usuario {
     private int nAnuncios;
     private Float valoracion;
     private String password;
+
 
 
 
@@ -91,4 +98,56 @@ public class Usuario {
     //CONSTRUCTOR VACÍO
     public Usuario(){}
 
+
+
+    //ALL LO RELACIONADO CON LO PARCELABLE VA AQUÍ
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel parcel, int i) {
+        parcel.writeInt(idUsuario);
+        parcel.writeParcelable(fotoUsuario, i);
+        parcel.writeString(nombreUsuario);
+        parcel.writeString(correoUsuario);
+        parcel.writeInt(nIntercambios);
+        parcel.writeInt(nAnuncios);
+        if (valoracion == null) {
+            parcel.writeByte((byte) 0);
+        } else {
+            parcel.writeByte((byte) 1);
+            parcel.writeFloat(valoracion);
+        }
+        parcel.writeString(password);
+    }
+
+
+    protected Usuario(Parcel in) {
+        idUsuario = in.readInt();
+        fotoUsuario = in.readParcelable(Bitmap.class.getClassLoader());
+        nombreUsuario = in.readString();
+        correoUsuario = in.readString();
+        nIntercambios = in.readInt();
+        nAnuncios = in.readInt();
+        if (in.readByte() == 0) {
+            valoracion = null;
+        } else {
+            valoracion = in.readFloat();
+        }
+        password = in.readString();
+    }
+
+    public static final Creator<Usuario> CREATOR = new Creator<Usuario>() {
+        @Override
+        public Usuario createFromParcel(Parcel in) {
+            return new Usuario(in);
+        }
+
+        @Override
+        public Usuario[] newArray(int size) {
+            return new Usuario[size];
+        }
+    };
 }
