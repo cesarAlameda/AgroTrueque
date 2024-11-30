@@ -18,4 +18,12 @@ public interface ApiService {
                 @Field("password") String password,
                 @Field("fotoUsuario") String fotoUsuario
         );
+        @FormUrlEncoded
+        @POST("select_user.php")
+        Call<JsonObject> selectuser(
+                @Field("correoUsuario") String correoUsuario,
+                @Field("password") String password
+        );
+
+
 }

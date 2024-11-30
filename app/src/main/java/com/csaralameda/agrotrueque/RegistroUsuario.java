@@ -104,8 +104,7 @@ public class RegistroUsuario extends AppCompatActivity {
                 Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
                 ApiService apiService = retrofit.create(ApiService.class);
 
-                // Asumiendo que los EditTextArray están en este orden:
-                // 0: username, 1: email, 2: password, 3: confirmed password
+
                 String username = EditTextArray[0].getText().toString().trim();
                 String email = EditTextArray[1].getText().toString().trim();
                 String password = EditTextArray[2].getText().toString().trim();
@@ -113,10 +112,10 @@ public class RegistroUsuario extends AppCompatActivity {
                 String photoUrl = "";
 
                 Call<JsonObject> call = apiService.registrarUser(
-                        username,    // nombreUsuario
-                        email,       // correoUsuario
-                        password,    // password
-                        photoUrl     // fotoUsuario
+                        username,
+                        email,
+                        password,
+                        photoUrl
                 );
 
                 call.enqueue(new Callback<JsonObject>() {
