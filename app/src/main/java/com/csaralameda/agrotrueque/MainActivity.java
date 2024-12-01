@@ -21,8 +21,7 @@ public class MainActivity extends AppCompatActivity {
     boolean logueado;
     public Usuario user;
     private PerfilViewModel perfilViewModel;
-    private TextView[] TextViewArray;
-    private static final int NPARAMUSARIO = 5;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,12 +57,6 @@ public class MainActivity extends AppCompatActivity {
             //RECARGO LA VISTA PARA QUE ESTÉ CON LOS DATOS GARGADOS
             navController.navigate(R.id.navigation_anuncios);
             navController.navigate(R.id.navigation_perfil);
-
-
-
-
-
-
 
 
 

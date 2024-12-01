@@ -180,6 +180,7 @@
 
 
         <LinearLayout
+            android:id="@+id/lyEditarPerfil"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:orientation="horizontal">
@@ -220,6 +221,7 @@
             android:background="#DDDDDD" />
 
         <LinearLayout
+            android:id="@+id/lyConfig"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:orientation="horizontal">
@@ -259,6 +261,7 @@
             android:background="#DDDDDD" />
 
         <LinearLayout
+            android:id="@+id/lyPrivacidad"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:orientation="horizontal">
@@ -300,6 +303,7 @@
             android:background="#DDDDDD" />
 
         <LinearLayout
+            android:id="@+id/lyAyuda"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:orientation="horizontal">
