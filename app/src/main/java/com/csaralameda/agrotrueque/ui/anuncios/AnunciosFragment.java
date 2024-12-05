@@ -26,8 +26,9 @@ public class AnunciosFragment extends Fragment {
         binding = FragmentAnunciosBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textDashboard;
-        anunciosViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+
+
+
         return root;
     }
 

@@ -1,14 +1,21 @@
 package com.csaralameda.agrotrueque;
 
+
+
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Editable;
+import android.util.Base64;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +23,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.Manifest;
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
@@ -23,19 +32,45 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.FutureTarget;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.csaralameda.agrotrueque.DataService.RetrofitClient;
 import com.csaralameda.agrotrueque.Interfaces.ApiService;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.fido.fido2.api.common.RequestOptions;
+import com.google.android.gms.tasks.Task;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class Logueo extends AppCompatActivity {
+public class
+Logueo extends AppCompatActivity {
+    private static final int RC_SIGN_IN = 1;
     private String mensaje="";
-
+    private GoogleSignInClient mGoogleSignInClient;
+    private SignInButton btnGoogle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +88,7 @@ public class Logueo extends AppCompatActivity {
         TextView tvRegistro=findViewById(R.id.TVregistro);
         EditText edMail=findViewById(R.id.edMailLog);
         EditText edPass=findViewById(R.id.edPassLog);
-
+        btnGoogle=findViewById(R.id.googleSignInButton);
         //DATOS PROVISIONALES:
         edMail.setText("twitt29@gmail.com");
         edPass.setText("Monodejungla23");
@@ -96,81 +131,293 @@ public class Logueo extends AppCompatActivity {
 
 
 
-            private void usuariologin(String correo, String pass) {
 
-                Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
-                ApiService apiService = retrofit.create(ApiService.class);
-
-
-                Call<JsonObject> call = apiService.selectuser(
-                        correo.trim(),
-                        pass.trim()
-                );
-
-
-                call.enqueue(new Callback<JsonObject>() {
-                    @Override
-                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-
-                        if (response.isSuccessful() && response.body() != null) {
-                            Log.d("RESPUESTA_BODY", response.body().toString());
-                            String status = response.body().get("status").getAsString();
-                            mensaje = response.body().get("message").getAsString();
-                            Usuario user=new Usuario();
-                            if ("success".equals(status)) {
-                               // int idUsuario, String password, Float valoracion, int nAnuncios,
-                               // Bitmap fotoUsuario, String nombreUsuario, String correoUsuario, int nIntercambios
-                                /**   "user": {
-                                    "idUsuario": 10,
-                                            "fotoUsuario": "",
-                                            "nombreUsuario": "twitt",
-                                            "correoUsuario": "twitt29@gmail.com",
-                                            "nIntercambios": 0,
-                                            "nAnuncios": 0,
-                                            "valoracion": 0**/
-                                JsonObject responseBody = response.body();
-                                JsonObject usuario = responseBody.getAsJsonObject("user");
-                                user.setIdUsuario(usuario.get("idUsuario").getAsInt());
-                                user.setValoracion(usuario.get("valoracion").getAsFloat());
-                                user.setCorreoUsuario(usuario.get("correoUsuario").getAsString());
-                                user.setnIntercambios(usuario.get("nIntercambios").getAsInt());
-                                user.setnAnuncios(usuario.get("nAnuncios").getAsInt());
-                                user.setNombreUsuario(usuario.get("nombreUsuario").getAsString());
-
-                                Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(Logueo.this, MainActivity.class);
-                                intent.putExtra("logueado", true);
-                                intent.putExtra("user", (Parcelable) user);
-                                startActivity(intent);
-                                finish();
-                            } else {
-                                Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            Toast.makeText(getApplicationContext(),
-                                    "Error en la respuesta del servidor",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<JsonObject> call, Throwable t) {
-                        Toast.makeText(getApplicationContext(),
-                                "Error de conexión: " + t.getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                        Log.e("ERROR", "Error: " + t.getMessage());
-                    }
-                });
-            }
         });
 
 
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        btnGoogle.setOnClickListener(view -> {
+            Log.d("GOOGLE", "LOGIN POR GOOGLE");
+            signInWithGoogle();
+        });
+
+
+
+    }
+    private void usuariologin(String correo, String pass) {
+        Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
+        ApiService apiService = retrofit.create(ApiService.class);
+
+        Call<JsonObject> call = apiService.selectuser(
+                correo.trim(),
+                pass.trim()
+        );
+
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d("RESPUESTA_BODY", response.body().toString());
+                    String status = response.body().get("status").getAsString();
+                    mensaje = response.body().get("message").getAsString();
+                    Usuario user = new Usuario();
+
+                    if ("success".equals(status)) {
+                        JsonObject responseBody = response.body();
+                        JsonObject usuario = responseBody.getAsJsonObject("user");
+
+                        user.setIdUsuario(usuario.get("idUsuario").getAsInt());
+                        user.setValoracion(usuario.get("valoracion").getAsFloat());
+                        user.setCorreoUsuario(usuario.get("correoUsuario").getAsString());
+                        user.setnIntercambios(usuario.get("nIntercambios").getAsInt());
+                        user.setnAnuncios(usuario.get("nAnuncios").getAsInt());
+                        user.setNombreUsuario(usuario.get("nombreUsuario").getAsString());
+                        user.setTipo(usuario.get("tipo").getAsString());
+                        // Convertir foto a Bitmap
+
+                        if(user.getTipo().equals("G")){
+
+                            String fotoUrl = usuario.get("fotoUsuario").getAsString();
+
+                            Glide.with(getApplicationContext())
+                                    .asBitmap()
+                                    .load(fotoUrl)
+                                    .error(R.drawable.avatar) // Imagen de error para asegurarnos de manejar fallos
+                                    .into(new CustomTarget<Bitmap>() {
+                                        @Override
+                                        public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
+                                            if (bitmap != null) {
+
+                                                Log.d("BitmapCarga", "Bitmap cargado correctamente");
+                                                Log.d("BitmapDimensions", "Width: " + bitmap.getWidth() + ", Height: " + bitmap.getHeight());
+                                                user.setFotoUsuario(bitmap); // Asignar el Bitmap al usuario
+
+
+                                                Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
+                                                Intent intent = new Intent(Logueo.this, MainActivity.class);
+                                                intent.putExtra("logueado", true);
+
+                                                if (user.getFotoUsuario() != null) {
+                                                    String rutaFoto = guardarImagenEnCache(user.getFotoUsuario());
+                                                    Log.d("IMAGENLOGUEO","IMAGENGUARDADA");
+                                                    intent.putExtra("rutaFoto", rutaFoto);
+                                                    user.setFotoUsuario(null); // Evita pasar el Bitmap
+                                                }
+                                                intent.putExtra("user", (Parcelable) user);
+                                                startActivity(intent);
+                                                finish();
+
+                                            } else {
+                                                Log.e("BitmapError", "Bitmap es nulo");
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                                            // Si es necesario limpiar recursos, se hace aquí
+                                        }
+
+                                        @Override
+                                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                                            super.onLoadFailed(errorDrawable);
+                                            Log.e("BitmapError", "Fallo al cargar la imagen con Glide");
+                                        }
+                                    });
+                        }else{
+                            String fotoBase64 = usuario.get("foto").getAsString();
+                            if (!"empty".equals(fotoBase64)) {
+                                try {
+                                    // Eliminar el prefijo del data URI si existe
+                                    if (fotoBase64.startsWith("data:image/png;base64,")) {
+                                        fotoBase64 = fotoBase64.replace("data:image/png;base64,", "");
+                                    }
+
+                                    // Decodificar el Base64 a un array de bytes
+                                    byte[] decodedBytes = Base64.decode(fotoBase64, Base64.DEFAULT);
+
+                                    // Convertir bytes a Bitmap
+                                    Bitmap fotoBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+
+                                    // Establecer el Bitmap en el usuario
+                                    user.setFotoUsuario(fotoBitmap);
+                                } catch (Exception e) {
+                                    Log.e("ERROR_FOTO", "Error convirtiendo foto", e);
+                                    // Podrías establecer un bitmap por defecto aquí si lo deseas
+                                    // user.setFotoUsuario(BitmapFactory.decodeResource(getResources(), R.drawable.default_user));
+                                }
+                            }
+
+                            Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(Logueo.this, MainActivity.class);
+                            intent.putExtra("logueado", true);
+
+                            if (user.getFotoUsuario() != null) {
+                                String rutaFoto = guardarImagenEnCache(user.getFotoUsuario());
+                                Log.d("IMAGENLOGUEO","IMAGENGUARDADA");
+                                intent.putExtra("rutaFoto", rutaFoto);
+                                user.setFotoUsuario(null); // Evita pasar el Bitmap
+                            }
+                            intent.putExtra("user", (Parcelable) user);
+                            startActivity(intent);
+                            finish();
+                        }
+
+
+
+                    } else {
+                        Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(),
+                            "Error en la respuesta del servidor",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Toast.makeText(getApplicationContext(),
+                        "Error de conexión: " + t.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+                Log.e("ERROR", "Error: " + t.getMessage());
+            }
+        });
     }
 
-            private boolean validarCampos(String correo, String pass) {
+    public static Bitmap loadBitmapFromUrl(Context context, String imageUrl) {
+        try {
+            FutureTarget<Bitmap> futureTarget = Glide.with(context)
+                    .asBitmap()
+                    .load(imageUrl)
+                    .submit();
+
+            return futureTarget.get();  // Aquí obtienes el Bitmap
+        } catch (
+                ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+            return null;  // En caso de error, devuelve null
+        }
+    }
+
+    private String guardarImagenEnCache(Bitmap bitmap) {
+        try {
+            File cacheDir = getApplicationContext().getCacheDir();
+            File file = new File(cacheDir, "foto_usuario.png");
+            FileOutputStream fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.close();
+            return file.getAbsolutePath();
+        } catch (
+                IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    private void signInWithGoogle() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    public static Bitmap getBitmapFromURL(String src) {
+        try {
+            URL url = new URL(src);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            return BitmapFactory.decodeStream(input);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Resultado devuelto al iniciar la actividad de Google Sign In
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                // Google Sign In was successful, authenticate with Firebase
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+
+                insertarUsuario(account);
+
+            } catch (
+                    ApiException e) {
+                // Google Sign In failed, update UI appropriately
+                Log.w("GOOGLE", "Google sign in failed", e);
+                Toast.makeText(this, "Inicio de sesión de Google fallido", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void insertarUsuario(GoogleSignInAccount account) {
+
+            Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
+            ApiService apiService = retrofit.create(ApiService.class);
+
+            String username = account.getDisplayName();
+            String email = account.getEmail();
+            String password = account.getId();
+            String photoUrl = account.getPhotoUrl().toString();
+            String tipo="G";
+
+            Call<JsonObject> call = apiService.registrarUser(username, email, password, photoUrl,tipo);
+            call.enqueue(new Callback<JsonObject>() {
+                @Override
+                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        String status = response.body().get("status").getAsString();
+                        mensaje = response.body().get("message").getAsString();
+
+                        if ("success".equals(status)) {
+                            Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(Logueo.this, MainActivity.class);
+                            intent.putExtra("logueado", true);
+                            startActivity(intent);
+                            finish();
+                            Log.d("INSERTARENLOGUEO1",mensaje);
+                        } else {
+
+                            Log.d("INSERTARENLOGUEO2",mensaje);
+                            //si el correo existe entra aqui
+                            if(mensaje.equals("El correo electrónico ya está registrado")){
+                                usuariologin(account.getEmail(), account.getId());
+                            }
+
+
+
+                        }
+                    } else {
+                        Log.d("INSERTARENLOGUEO3",mensaje);
+                        Toast.makeText(getApplicationContext(), "Error en la respuesta del servidor", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<JsonObject> call, Throwable t) {
+                    Toast.makeText(getApplicationContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("ERROR", "Error: " + t.getMessage());
+
+
+
+                }
+            });
+        }
+
+    private boolean validarCampos(String correo, String pass) {
 
                 // Validar correo electrónico
-                if (!android.util.Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
+                if (!Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
                     Toast.makeText(getApplicationContext(), "El correo electrónico no es válido", Toast.LENGTH_SHORT).show();
                     return false;
                 }

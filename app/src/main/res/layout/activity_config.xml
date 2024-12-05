@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="100dp"
+    android:orientation="vertical"
+    tools:context="GeneralParam.Config">
+
+    <LinearLayout
+        android:id="@+id/cambiarPassword"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/verificaryseguridad"
+            android:layout_width="125dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:paddingLeft="10dp"
+            android:paddingTop="14dp"
+            android:text="Cambiar Contraseña"
+            android:textAlignment="viewStart"
+            android:textSize="20sp" />
+
+        <ImageView
+            android:id="@+id/imageView6"
+            android:layout_width="10dp"
+            android:layout_height="25dp"
+            android:layout_marginTop="15dp"
+            android:layout_weight="1"
+            android:rotation="-90"
+            android:scaleType="centerInside"
+            android:src="@drawable/flecha"
+            android:tint="#767272" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/notificaciones"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/noti"
+            android:layout_width="125dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:paddingLeft="10dp"
+            android:paddingTop="14dp"
+            android:text="Notificaciones"
+            android:textAlignment="viewStart"
+            android:textSize="20sp" />
+
+        <ImageView
+            android:id="@+id/imageView7"
+            android:layout_width="10dp"
+            android:layout_height="25dp"
+            android:layout_marginTop="15dp"
+            android:layout_weight="1"
+            android:rotation="-90"
+            android:scaleType="centerInside"
+            android:src="@drawable/flecha"
+            android:tint="#767272" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/cerrarsesion"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/cerrars"
+            android:layout_width="125dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:paddingLeft="10dp"
+            android:paddingTop="14dp"
+            android:text="Cerrar Sesión"
+            android:textAlignment="viewStart"
+            android:textSize="20sp" />
+
+        <ImageView
+            android:id="@+id/imageView8"
+            android:layout_width="10dp"
+            android:layout_height="25dp"
+            android:layout_marginTop="15dp"
+            android:layout_weight="1"
+            android:rotation="-90"
+            android:scaleType="centerInside"
+            android:src="@drawable/flecha"
+            android:tint="#767272" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/eliminarcuenta"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/delete"
+            android:layout_width="125dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:paddingLeft="10dp"
+            android:paddingTop="14dp"
+            android:text="Eliminar Cuenta"
+            android:textAlignment="viewStart"
+            android:textSize="20sp" />
+
+        <ImageView
+            android:id="@+id/imageView9"
+            android:layout_width="10dp"
+            android:layout_height="25dp"
+            android:layout_marginTop="15dp"
+            android:layout_weight="1"
+            android:rotation="-90"
+            android:scaleType="centerInside"
+            android:src="@drawable/flecha"
+            android:tint="#767272" />
+    </LinearLayout>
+
+
+
+</LinearLayout>

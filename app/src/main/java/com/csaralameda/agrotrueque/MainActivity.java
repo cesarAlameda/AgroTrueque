@@ -1,6 +1,8 @@
 package com.csaralameda.agrotrueque;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -42,6 +44,12 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
                 return;
+            }
+
+            String rutaFoto = getIntent().getStringExtra("rutaFoto");
+            if (rutaFoto != null) {
+                Bitmap fotoBitmap = BitmapFactory.decodeFile(rutaFoto);
+                user.setFotoUsuario(fotoBitmap);
             }
 
             BottomNavigationView navView = findViewById(R.id.nav_view);
