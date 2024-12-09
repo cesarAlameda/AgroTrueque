@@ -7,12 +7,16 @@
         android:required="true" />
 
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:targetApi="33" />
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_IMAGES"
+        tools:targetApi="33" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.INTERNET" />
 
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" tools:node="remove"/>
+
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:targetApi="30" />
 
     <application
@@ -25,9 +29,11 @@
         android:roundIcon="@drawable/iconolauncher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:targetApi="33">
-
-
+        tools:targetApi="33"
+        >
+        <activity
+            android:name=".ui.anuncios.CrearAnuncio"
+            android:exported="false" />
         <activity
             android:name=".GeneralParam.Config"
             android:exported="false" />
@@ -47,8 +53,13 @@
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDepzj1jx2DThRcKei_pFfl5EXcBg3BXDs"/>
     </application>
+
 </manifest>

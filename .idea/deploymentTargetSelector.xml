@@ -15,7 +15,7 @@
       </SelectionState>
       <SelectionState runConfigName="AgroTrueque">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-12-05T23:18:08.716816800Z">
+        <DropdownSelection timestamp="2024-12-07T11:19:01.281609200Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Csar\.android\avd\Pixel_8_API_33.avd" />

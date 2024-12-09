@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.csaralameda.agrotrueque.databinding.ActivityMainBinding;
+import com.csaralameda.agrotrueque.ui.anuncios.AnunciosViewModel;
 import com.csaralameda.agrotrueque.ui.perfil.PerfilViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.lifecycle.ViewModelProvider;
@@ -23,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     boolean logueado;
     public Usuario user;
     private PerfilViewModel perfilViewModel;
-
+    private AnunciosViewModel anunciosViewModel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
         logueado = getIntent().getBooleanExtra("logueado", false);
         if (!logueado) {
+
             Intent intent = new Intent(MainActivity.this, Logueo.class);
             startActivity(intent);
             finish();
@@ -60,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
             NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
             NavigationUI.setupWithNavController(binding.navView, navController);
             perfilViewModel = new ViewModelProvider(this).get(PerfilViewModel.class);
+            anunciosViewModel = new ViewModelProvider(this).get(AnunciosViewModel.class);
+            anunciosViewModel.setUser(user);
             perfilViewModel.setUser(user);
 
             //RECARGO LA VISTA PARA QUE ESTÉ CON LOS DATOS GARGADOS

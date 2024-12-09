@@ -242,10 +242,8 @@ Logueo extends AppCompatActivity {
                                     // Decodificar el Base64 a un array de bytes
                                     byte[] decodedBytes = Base64.decode(fotoBase64, Base64.DEFAULT);
 
-                                    // Convertir bytes a Bitmap
                                     Bitmap fotoBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
 
-                                    // Establecer el Bitmap en el usuario
                                     user.setFotoUsuario(fotoBitmap);
                                 } catch (Exception e) {
                                     Log.e("ERROR_FOTO", "Error convirtiendo foto", e);
@@ -342,18 +340,14 @@ Logueo extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        // Resultado devuelto al iniciar la actividad de Google Sign In
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
-                // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
-
                 insertarUsuario(account);
 
             } catch (
                     ApiException e) {
-                // Google Sign In failed, update UI appropriately
                 Log.w("GOOGLE", "Google sign in failed", e);
                 Toast.makeText(this, "Inicio de sesión de Google fallido", Toast.LENGTH_SHORT).show();
             }

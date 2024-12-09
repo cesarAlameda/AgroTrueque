@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id ("com.google.gms.google-services")
@@ -16,6 +18,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
+
+
     }
 
     buildTypes {
@@ -33,6 +37,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -62,8 +67,12 @@ dependencies {
 
     //GLIDE
     implementation ("com.github.bumptech.glide:glide:4.15.1")
+    implementation(libs.legacy.support.v4)
+    implementation(libs.recyclerview)
     annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
 
+    //GOOGLE MAPSS
+    implementation ("com.google.android.gms:play-services-maps:18.1.0")
 
 
     testImplementation(libs.junit)
