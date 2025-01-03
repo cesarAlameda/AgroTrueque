@@ -180,7 +180,6 @@ Logueo extends AppCompatActivity {
                         user.setnAnuncios(usuario.get("nAnuncios").getAsInt());
                         user.setNombreUsuario(usuario.get("nombreUsuario").getAsString());
                         user.setTipo(usuario.get("tipo").getAsString());
-                        // Convertir foto a Bitmap
 
                         if(user.getTipo().equals("G")){
 
@@ -189,7 +188,7 @@ Logueo extends AppCompatActivity {
                             Glide.with(getApplicationContext())
                                     .asBitmap()
                                     .load(fotoUrl)
-                                    .error(R.drawable.avatar) // Imagen de error para asegurarnos de manejar fallos
+                                    .error(R.drawable.avatar)
                                     .into(new CustomTarget<Bitmap>() {
                                         @Override
                                         public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
@@ -234,12 +233,10 @@ Logueo extends AppCompatActivity {
                             String fotoBase64 = usuario.get("foto").getAsString();
                             if (!"empty".equals(fotoBase64)) {
                                 try {
-                                    // Eliminar el prefijo del data URI si existe
                                     if (fotoBase64.startsWith("data:image/png;base64,")) {
                                         fotoBase64 = fotoBase64.replace("data:image/png;base64,", "");
                                     }
 
-                                    // Decodificar el Base64 a un array de bytes
                                     byte[] decodedBytes = Base64.decode(fotoBase64, Base64.DEFAULT);
 
                                     Bitmap fotoBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
@@ -247,8 +244,7 @@ Logueo extends AppCompatActivity {
                                     user.setFotoUsuario(fotoBitmap);
                                 } catch (Exception e) {
                                     Log.e("ERROR_FOTO", "Error convirtiendo foto", e);
-                                    // Podrías establecer un bitmap por defecto aquí si lo deseas
-                                    // user.setFotoUsuario(BitmapFactory.decodeResource(getResources(), R.drawable.default_user));
+                                    user.setFotoUsuario(BitmapFactory.decodeResource(getResources(), R.drawable.avatar));
                                 }
                             }
 
@@ -289,20 +285,6 @@ Logueo extends AppCompatActivity {
         });
     }
 
-    public static Bitmap loadBitmapFromUrl(Context context, String imageUrl) {
-        try {
-            FutureTarget<Bitmap> futureTarget = Glide.with(context)
-                    .asBitmap()
-                    .load(imageUrl)
-                    .submit();
-
-            return futureTarget.get();  // Aquí obtienes el Bitmap
-        } catch (
-                ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-            return null;  // En caso de error, devuelve null
-        }
-    }
 
     private String guardarImagenEnCache(Bitmap bitmap) {
         try {
@@ -363,6 +345,7 @@ Logueo extends AppCompatActivity {
             String email = account.getEmail();
             String password = account.getId();
             String photoUrl = account.getPhotoUrl().toString();
+
             String tipo="G";
 
             Call<JsonObject> call = apiService.registrarUser(username, email, password, photoUrl,tipo);

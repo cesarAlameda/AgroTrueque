@@ -1,6 +1,7 @@
 package com.csaralameda.agrotrueque.ui.anuncios;
 
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.csaralameda.agrotrueque.R;
 import com.csaralameda.agrotrueque.databinding.FragmentAnunciosBinding;
 
 public class AnunciosFragment extends Fragment {
@@ -31,7 +33,7 @@ public class AnunciosFragment extends Fragment {
 
 
         for (int i = 0; i < 20; i++) {
-            Anuncio a=new Anuncio(1,"hola","ny","10:20","cerrado","a",2);
+            Anuncio a=new Anuncio(1,"hola","ny","10:20","cerrado", BitmapFactory.decodeResource(getResources(), R.drawable.avatar),2);
             Anuncios.listanuncios.add(a);
         }
 
@@ -57,5 +59,12 @@ public class AnunciosFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    @Override
+    public void onResume() {
+
+
+        super.onResume();
     }
 }

@@ -2,9 +2,7 @@ package com.csaralameda.agrotrueque.GeneralParam;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
@@ -13,25 +11,35 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
 
 import com.csaralameda.agrotrueque.Logueo;
-import com.csaralameda.agrotrueque.MainActivity;
+
 import com.csaralameda.agrotrueque.R;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 public class Config extends AppCompatActivity {
     private static final int NLAYOUT = 4;
     private LinearLayout[] LinearLayoutArray;
-
+    private GoogleSignInClient mGoogleSignInClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_config);
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
 
         LinearLayoutArray=new LinearLayout[NLAYOUT];
 
@@ -67,11 +75,7 @@ public class Config extends AppCompatActivity {
                         case 2:
                             // Acción para CERRAR SESIÓN
                             Log.d("CERRAR_SESIÓN", "CERRAR SESION");
-                            Intent intent = new Intent(Config.this, Logueo.class);
-                            intent.putExtra("logueado", false);
-                            startActivity(intent);
-                            finish();
-
+                            cerrarSesiondegoogleogeneral();
                             break;
                         case 3:
                             // Acción para ELIMINAR CUENTA
@@ -83,6 +87,26 @@ public class Config extends AppCompatActivity {
 
                             break;
                     }
+                }
+
+                private void cerrarSesiondegoogleogeneral() {
+
+                    mGoogleSignInClient.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(Config.this, "Sesión cerrada", Toast.LENGTH_SHORT).show();
+
+                                Intent intent = new Intent(Config.this, Logueo.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                Toast.makeText(Config.this, "Error al cerrar sesión", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+
                 }
             });
         }

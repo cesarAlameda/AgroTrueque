@@ -1,5 +1,7 @@
 package com.csaralameda.agrotrueque.ui.anuncios;
 
+import android.graphics.Bitmap;
+
 public class Anuncio {
 
     private int idAnuncio;
@@ -7,13 +9,13 @@ public class Anuncio {
     private String localizacion;
     private String hora;
     private String estado;
-    private String fotoAnuncio;
+    private Bitmap fotoAnuncio;
     private int idUsuario;
 
     public Anuncio() {
     }
 
-    public Anuncio(int idAnuncio, String descripcion, String localizacion, String hora, String estado, String fotoAnuncio, int idUsuario) {
+    public Anuncio(int idAnuncio, String descripcion, String localizacion, String hora, String estado, Bitmap fotoAnuncio, int idUsuario) {
         this.idAnuncio = idAnuncio;
         this.descripcion = descripcion;
         this.localizacion = localizacion;
@@ -63,11 +65,11 @@ public class Anuncio {
         this.estado = estado;
     }
 
-    public String getFotoAnuncio() {
+    public Bitmap getFotoAnuncio() {
         return fotoAnuncio;
     }
 
-    public void setFotoAnuncio(String fotoAnuncio) {
+    public void setFotoAnuncio(Bitmap fotoAnuncio) {
         this.fotoAnuncio = fotoAnuncio;
     }
 

@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
             perfilViewModel.setUser(user);
 
             //RECARGO LA VISTA PARA QUE ESTÉ CON LOS DATOS GARGADOS
-            navController.navigate(R.id.navigation_anuncios);
             navController.navigate(R.id.navigation_perfil);
 
 

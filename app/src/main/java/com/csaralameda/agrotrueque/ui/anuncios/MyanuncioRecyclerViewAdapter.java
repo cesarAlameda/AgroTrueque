@@ -15,7 +15,7 @@ import com.csaralameda.agrotrueque.databinding.FragmentAnuncioBinding;
 import java.util.List;
 
 
-public class MyanuncioRecyclerViewAdapter extends RecyclerView.Adapter<MyanuncioRecyclerViewAdapter.ViewHolder> {
+public class    MyanuncioRecyclerViewAdapter extends RecyclerView.Adapter<MyanuncioRecyclerViewAdapter.ViewHolder> {
 
     private final List<Anuncio> mValues;
 
