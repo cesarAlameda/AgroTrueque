@@ -4,6 +4,7 @@ package com.csaralameda.agrotrueque;
 
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -16,6 +17,7 @@ import android.text.Editable;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -64,6 +66,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.http.Field;
 
 public class
 Logueo extends AppCompatActivity {
@@ -71,7 +74,7 @@ Logueo extends AppCompatActivity {
     private String mensaje="";
     private GoogleSignInClient mGoogleSignInClient;
     private SignInButton btnGoogle;
-
+    private TextView tvPassForget;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,6 +91,7 @@ Logueo extends AppCompatActivity {
         TextView tvRegistro=findViewById(R.id.TVregistro);
         EditText edMail=findViewById(R.id.edMailLog);
         EditText edPass=findViewById(R.id.edPassLog);
+        tvPassForget=findViewById(R.id.tvPassForget);
         btnGoogle=findViewById(R.id.googleSignInButton);
         //DATOS PROVISIONALES:
         edMail.setText("twitt29@gmail.com");
@@ -98,6 +102,168 @@ Logueo extends AppCompatActivity {
 
 
         //ALL LO RELACIONADO CON EL TEMA DE DARLE AL BOTON DE INICIO DE SESIÓN
+
+        tvPassForget.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //LOGICA DE CUANDO OLVIDAS EL CORERO CON EL CODIGO POR EMAIL ETC
+                View dialogView= LayoutInflater.from(Logueo.this).inflate(R.layout.dialog_cambiar_password,null);
+                Log.d("CAMBIARPASSWORD", "CONTRASEÑA");
+                EditText etPassword=dialogView.findViewById(R.id.etPassword);
+                TextView tvPass=dialogView.findViewById(R.id.tvPass);
+                tvPass.setText("Introduce tu correo:");
+                etPassword.setHint("correo");
+                android.app.AlertDialog.Builder builder=new android.app.AlertDialog.Builder(Logueo.this);
+                builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        //AQUI 1 COGER EL CORREO DEL ED DESPUES PASARLO POR RETROFIT AL PHP Y DESPUES MOSTRAR
+                        String correo=etPassword.getText().toString();
+                        generarCodigo(correo);
+
+
+
+
+
+
+                    }
+
+                    private void generarCodigo(String correo) {
+
+                        Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
+                        ApiService apiService = retrofit.create(ApiService.class);
+
+
+
+
+
+                        Call<JsonObject> call = apiService.crearcodigo(correo);
+                        call.enqueue(new Callback<JsonObject>() {
+                            @Override
+                            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                                if (response.isSuccessful() && response.body() != null) {
+                                    String status = response.body().get("status").getAsString();
+                                    mensaje = response.body().get("message").getAsString();
+
+                                    if ("success".equals(status)) {
+                                        Toast.makeText(Logueo.this, "CORREO ENVIADO", Toast.LENGTH_SHORT).show();
+                                        View dialogView= LayoutInflater.from(Logueo.this).inflate(R.layout.dialog_olvidopassycodigo,null);
+                                        Log.d("CAMBIARPASSWORD", "CONTRASEÑA");
+                                        EditText etCod=dialogView.findViewById(R.id.etCod);
+                                        EditText etnuevapass=dialogView.findViewById(R.id.etnewpass);
+
+                                        android.app.AlertDialog.Builder builder=new android.app.AlertDialog.Builder(Logueo.this);
+                                        builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                    String cod=etCod.getText().toString();
+                                                    String nuevapass=etnuevapass.getText().toString();
+                                                    if(!validarCampos(correo, nuevapass)){
+
+                                                        Toast.makeText(Logueo.this, "Contraseña no válida", Toast.LENGTH_SHORT).show();
+
+                                                    }else{
+                                                        comprobarCodigo(cod,nuevapass);
+                                                    }
+
+
+
+
+                                            }
+
+                                            private void comprobarCodigo(String cod, String nuevapass) {
+                                              //  @Field("email") String email,
+                                                //  @Field("new_password") String new_password,
+                                                // @Field("code") String code
+                                                Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
+                                                ApiService apiService = retrofit.create(ApiService.class);
+
+
+                                              
+
+                                                Call<JsonObject> call = apiService.cambiopassconcodigo(correo, nuevapass,cod);
+                                                call.enqueue(new Callback<JsonObject>() {
+                                                    @Override
+                                                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                                                        if (response.isSuccessful() && response.body() != null) {
+                                                            String status = response.body().get("status").getAsString();
+                                                            mensaje = response.body().get("message").getAsString();
+
+                                                            if ("success".equals(status)) {
+                                                                Toast.makeText(Logueo.this, "CONTRASEÑA CAMBIADA CON ÉXITO", Toast.LENGTH_SHORT).show();
+                                                                
+                                                                
+                                                            } else {
+
+                                                                Toast.makeText(Logueo.this, "ERROR EN EL CÓDIGO", Toast.LENGTH_SHORT).show();
+                                                         
+
+
+
+                                                            }
+                                                        } else {
+                                                          
+                                                            Toast.makeText(getApplicationContext(), "Error en la respuesta del servidor", Toast.LENGTH_SHORT).show();
+                                                        }
+
+                                                    }
+
+                                                    @Override
+                                                    public void onFailure(Call<JsonObject> call, Throwable t) {
+                                                        Toast.makeText(getApplicationContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                                                        Log.e("ERROR", "Error: " + t.getMessage());
+
+
+
+                                                    }
+                                                });
+
+                                            }
+                                        });
+                                        builder.setView(dialogView);
+                                        final android.app.AlertDialog dialog= builder.create();
+                                        dialog.show();
+
+
+                                        
+                                    } else {
+
+                                        Toast.makeText(Logueo.this, "CORREO NO EXISTE", Toast.LENGTH_SHORT).show();
+
+
+
+                                    }
+                                } else {
+                                
+                                    Toast.makeText(getApplicationContext(), "Error en la respuesta del servidor", Toast.LENGTH_SHORT).show();
+                                }
+
+                            }
+
+                            @Override
+                            public void onFailure(Call<JsonObject> call, Throwable t) {
+                                Toast.makeText(getApplicationContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                                Log.e("ERROR", "Error: " + t.getMessage());
+
+
+
+                            }
+                        });
+
+
+
+                    }
+                });
+                builder.setView(dialogView);
+                final android.app.AlertDialog dialog= builder.create();
+                dialog.show();
+
+
+
+            }
+        });
+
 
         tvRegistro.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -273,6 +439,7 @@ Logueo extends AppCompatActivity {
                             "Error en la respuesta del servidor",
                             Toast.LENGTH_SHORT).show();
                 }
+
             }
 
             @Override
@@ -378,6 +545,7 @@ Logueo extends AppCompatActivity {
                         Log.d("INSERTARENLOGUEO3",mensaje);
                         Toast.makeText(getApplicationContext(), "Error en la respuesta del servidor", Toast.LENGTH_SHORT).show();
                     }
+
                 }
 
                 @Override

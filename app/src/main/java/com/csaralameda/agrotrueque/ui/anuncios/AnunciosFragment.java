@@ -31,8 +31,9 @@ public class AnunciosFragment extends Fragment {
         binding = FragmentAnunciosBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-
-        for (int i = 0; i < 20; i++) {
+        //LIMPIO LA LISTA DE ANUNCIOS Y LUEGO AÑADO UNOS DE EJEMPLO (AQUI EN UN FUTURO HARÉ QUE SE AÑADAN LOS ANUNCIOS DESDE LA BBDD)
+        Anuncios.listanuncios.clear();
+        for (int i = 0; i < 5; i++) {
             Anuncio a=new Anuncio(1,"hola","ny","10:20","cerrado", BitmapFactory.decodeResource(getResources(), R.drawable.avatar),2);
             Anuncios.listanuncios.add(a);
         }
@@ -42,12 +43,9 @@ public class AnunciosFragment extends Fragment {
         btnCrearAnuncio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //CREO LA ACTIVIDAD QUE ME MANDA A LA PANTALLA DE CREAR ANUNCIO
                 Intent intent =new Intent(v.getContext(), CrearAnuncio.class);
                 startActivity(intent);
-
-
-
-
             }
         });
 

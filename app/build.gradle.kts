@@ -51,6 +51,17 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.activity)
+    implementation(libs.legacy.support.v4)
+    implementation(libs.recyclerview)
+
+    //DATASTORAGE
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+    implementation(libs.datastore.rxjava3)
+    implementation(libs.datastore.preferences.rxjava3)
+
+
+    //GSON
+    implementation ("com.google.code.gson:gson:2.8.9")
 
     // Otras librerías
     implementation("de.hdodenhof:circleimageview:3.1.0")
@@ -67,8 +78,8 @@ dependencies {
 
     //GLIDE
     implementation ("com.github.bumptech.glide:glide:4.15.1")
-    implementation(libs.legacy.support.v4)
-    implementation(libs.recyclerview)
+
+
     annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
 
     //GOOGLE MAPSS

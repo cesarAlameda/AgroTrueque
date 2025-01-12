@@ -26,10 +26,14 @@ public class MainActivity extends AppCompatActivity {
     public Usuario user;
     private PerfilViewModel perfilViewModel;
     private AnunciosViewModel anunciosViewModel;
+    private UsuarioDataStore usuarioDataStore;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        //IMPORTANTE INICIALIZAR EL usuarioDataStore para que no de punteros nulos
+        usuarioDataStore = usuarioDataStore.getInstance(this);
+
 
         logueado = getIntent().getBooleanExtra("logueado", false);
         if (!logueado) {
@@ -54,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
                 Bitmap fotoBitmap = BitmapFactory.decodeFile(rutaFoto);
                 user.setFotoUsuario(fotoBitmap);
             }
+            usuarioDataStore.guardarUsuario(user);
+
 
             BottomNavigationView navView = findViewById(R.id.nav_view);
             AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(

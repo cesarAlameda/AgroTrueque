@@ -38,8 +38,33 @@ public interface ApiService {
                 @Part MultipartBody.Part file
         );
 
+        @FormUrlEncoded
+        @POST("select_pass.php")
+        Call<JsonObject> selectpass(
+                @Field("idUsuario") int idUsuario
 
+        );
+        @FormUrlEncoded
+        @POST("update_pass.php")
+        Call<JsonObject> updatePass(
+                @Field("idUsuario") int idUsuario,
+                @Field("password") String password
 
+        );
+
+        @FormUrlEncoded
+        @POST("creacodigos.php")
+        Call<JsonObject> crearcodigo(
+                @Field("email") String email
+        );
+
+        @FormUrlEncoded
+        @POST("cambiopassconcodigo.php")
+        Call<JsonObject> cambiopassconcodigo(
+                @Field("email") String email,
+                @Field("new_password") String new_password,
+                @Field("code") String code
+                );
 
 
 }

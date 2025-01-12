@@ -69,12 +69,14 @@ public class PerfilFragment extends Fragment {
                                 Log.d("EDITARPERFIL", "EDITAR PERFIL");
 
 
+                                //si el usario es de google podrá editar foto de perfil, nombre de usario
                                 if(user.getTipo().equals("G")){
                                     Log.d("PERFILFRAGMENTLOGINEDITAR","SE HA LOGUEADO POR GOOGLE");
 
 
 
                                 }else{
+                                    //si el usurario no es de google podrá editar también el correo electrónico
                                     Log.d("PERFILFRAGMENTLOGINEDITAR", "SE HA LOGUEADO NORMAL");
 
 

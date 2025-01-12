@@ -63,7 +63,7 @@ public class RegistroUsuario extends Activity {
     Bitmap bitmap;
     String fotourl="no hay foto";
 
-    private static final int RC_SIGN_IN = 9001;
+    private static final int GOOGLE_PERMISO = 10; //
 
 
     @Override
@@ -175,6 +175,7 @@ public class RegistroUsuario extends Activity {
                 } else {
                     Toast.makeText(getApplicationContext(), "Error en la respuesta del servidor", Toast.LENGTH_SHORT).show();
                 }
+
             }
 
             @Override
@@ -284,7 +285,7 @@ public class RegistroUsuario extends Activity {
             }
         }
 
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == GOOGLE_PERMISO) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // Google Sign In was successful, authenticate with Firebase
@@ -342,6 +343,7 @@ public class RegistroUsuario extends Activity {
                     Toast.makeText(getApplicationContext(), "Error en la respuesta del servidor", Toast.LENGTH_SHORT).show();
                     Log.d("SUBIRFOTO", "error servidor");
                 }
+                
             }
 
             @Override
