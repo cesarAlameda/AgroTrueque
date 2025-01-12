@@ -10,7 +10,7 @@ import java.io.Serializable;
 
 public class Usuario implements Parcelable, Serializable {
 
-    //ATRIBUTOS DE USUARIO
+    // ATRIBUTOS DE USUARIO
     private int idUsuario;
     private Bitmap fotoUsuario;
     private String nombreUsuario;
@@ -19,11 +19,9 @@ public class Usuario implements Parcelable, Serializable {
     private int nAnuncios;
     private Float valoracion;
     private String password;
+    private String tipo;
 
-
-
-
-    //GETTER Y SETTER
+    // GETTER Y SETTER
     public int getIdUsuario() {
         return idUsuario;
     }
@@ -32,9 +30,13 @@ public class Usuario implements Parcelable, Serializable {
         this.idUsuario = idUsuario;
     }
 
-    public Bitmap getFotoUsuario() {return fotoUsuario;}
+    public Bitmap getFotoUsuario() {
+        return fotoUsuario;
+    }
 
-    public void setFotoUsuario(Bitmap fotoUsuario) {this.fotoUsuario = fotoUsuario;}
+    public void setFotoUsuario(Bitmap fotoUsuario) {
+        this.fotoUsuario = fotoUsuario;
+    }
 
     public String getCorreoUsuario() {
         return correoUsuario;
@@ -84,8 +86,16 @@ public class Usuario implements Parcelable, Serializable {
         this.valoracion = valoracion;
     }
 
-    //CONSTRUCTOR CON TODOS LOS PARAMETROS
-    public Usuario(int idUsuario, String password, Float valoracion, int nAnuncios, Bitmap fotoUsuario, String nombreUsuario, String correoUsuario, int nIntercambios) {
+    public String getTipo() {  // NUEVO GETTER
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {  // NUEVO SETTER
+        this.tipo = tipo;
+    }
+
+    // CONSTRUCTOR CON TODOS LOS PARÁMETROS
+    public Usuario(int idUsuario, String password, Float valoracion, int nAnuncios, Bitmap fotoUsuario, String nombreUsuario, String correoUsuario, int nIntercambios, String tipo) {
         this.idUsuario = idUsuario;
         this.password = password;
         this.valoracion = valoracion;
@@ -94,13 +104,13 @@ public class Usuario implements Parcelable, Serializable {
         this.nombreUsuario = nombreUsuario;
         this.correoUsuario = correoUsuario;
         this.nIntercambios = nIntercambios;
+        this.tipo = tipo;  // NUEVO PARÁMETRO
     }
-    //CONSTRUCTOR VACÍO
-    public Usuario(){}
 
+    // CONSTRUCTOR VACÍO
+    public Usuario() {}
 
-
-    //ALL LO RELACIONADO CON LO PARCELABLE VA AQUÍ
+    // TODO: TODO LO RELACIONADO CON LO PARCELABLE VA AQUÍ
     @Override
     public int describeContents() {
         return 0;
@@ -121,8 +131,8 @@ public class Usuario implements Parcelable, Serializable {
             parcel.writeFloat(valoracion);
         }
         parcel.writeString(password);
+        parcel.writeString(tipo);  // SE AÑADE EL TIPO
     }
-
 
     protected Usuario(Parcel in) {
         idUsuario = in.readInt();
@@ -137,6 +147,7 @@ public class Usuario implements Parcelable, Serializable {
             valoracion = in.readFloat();
         }
         password = in.readString();
+        tipo = in.readString();  // SE LEER EL TIPO
     }
 
     public static final Creator<Usuario> CREATOR = new Creator<Usuario>() {

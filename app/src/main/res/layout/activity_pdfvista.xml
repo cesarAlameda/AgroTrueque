@@ -5,13 +5,14 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PDFvista">
-
+    tools:context="GeneralParam.PDFvista">
 
 
     <com.pdfview.PDFView
         android:id="@+id/vistaPdf"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="683dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="3dp" />
 
 </RelativeLayout>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.anuncios.CrearAnuncio">
+
+    <TextView
+        android:id="@+id/tvFormularioTitulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Crear Anuncio"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#436B1C"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/ivFotoAnuncio"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/fotoanuncio"
+        android:background="#E8E1D9"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toBottomOf="@+id/tvFormularioTitulo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/tvFotoInstruccion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Haz clic para seleccionar una imagen"
+        android:textSize="14sp"
+        android:textColor="#436B1C"
+        app:layout_constraintTop_toBottomOf="@+id/ivFotoAnuncio"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/tvDescripcion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Descripción"
+        android:textColor="#436B1C"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/tvFotoInstruccion"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp" />
+
+    <EditText
+        android:id="@+id/etDescripcion"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:background="@drawable/bordeparaeditext"
+        android:hint="Ingresa la descripción del anuncio"
+        android:inputType="textMultiLine"
+        android:padding="12dp"
+        android:gravity="top"
+        android:textColor="#000000"
+        android:textColorHint="#888888"
+        app:layout_constraintTop_toBottomOf="@+id/tvDescripcion"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
+    <TextView
+        android:id="@+id/tvLocalizacion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Localización"
+        android:textColor="#436B1C"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/etDescripcion"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp" />
+
+    <fragment
+        android:id="@+id/map"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        app:layout_constraintTop_toBottomOf="@+id/tvLocalizacion"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp" />
+
+    <Button
+        android:id="@+id/guardarAnuncio"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/boton_con_bordes"
+        android:text="Guardar Anuncio"
+        android:textAllCaps="false"
+        android:textColor="#F8F8F8"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/map"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

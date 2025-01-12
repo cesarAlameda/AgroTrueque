@@ -1,12 +1,17 @@
 package com.csaralameda.agrotrueque;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -18,204 +23,200 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.Manifest;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.content.ContextCompat;
 import androidx.core.app.ActivityCompat;
-
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.core.content.ContextCompat;
 
 import com.csaralameda.agrotrueque.DataService.RetrofitClient;
 import com.csaralameda.agrotrueque.Interfaces.ApiService;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 import com.google.gson.JsonObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class RegistroUsuario extends AppCompatActivity {
-    //TODO:OPCION DE ELEGIR UNA FOTO DE GALERÍA (ACTUALMENTE NO FUNCIONA)
-    private static final int FOTO = 1;
-    private static final int GALERIA=2;
-    private static final int NEDITEXT=4;
+public class RegistroUsuario extends Activity {
+
+    private static final int NEDITEXT = 4;
     private EditText[] EditTextArray;
-    ImageView imgviewregistro;
-    Uri urimagen;
+    private ImageView imgviewregistro;
+    private Uri urimagen;
     private String mensaje;
+    Bitmap bitmap;
+    String fotourl="no hay foto";
+
+    private static final int GOOGLE_PERMISO = 10; //
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_registro_usuario);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-        //Declaro variables
-        mensaje="";
-        TextView tvInicio=findViewById(R.id.tvInicio);
-        Button btnRegistro=findViewById(R.id.btnRegistro);
-        imgviewregistro=findViewById(R.id.imageView9);
 
-        //array de editexts
+        mensaje = "";
+        TextView tvInicio = findViewById(R.id.tvInicio);
+        Button btnRegistro = findViewById(R.id.btnRegistro);
+        imgviewregistro = findViewById(R.id.imageView9);
+
+
+
+        // Array de EditTexts
         EditTextArray = new EditText[NEDITEXT];
         EditTextArray[0] = findViewById(R.id.EDuser);
         EditTextArray[1] = findViewById(R.id.edEmail);
         EditTextArray[2] = findViewById(R.id.edPass);
         EditTextArray[3] = findViewById(R.id.edPassconfirmado);
 
-
-
-
         imgviewregistro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                verificarpedirpermisosCamaraGaleria();
+                verificarPermisosCamaraGaleria();
+
             }
         });
 
-        btnRegistro.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        btnRegistro.setOnClickListener(v -> {
+            if (validarCampos()) {
 
 
-                if(validarCampos()){
+                if(bitmap!=null){
+                    subirfoto(bitmap);
+                }else{
                     insertarUsuario();
                 }
-
-            }
-            private void insertarUsuario() {
-                Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
-                ApiService apiService = retrofit.create(ApiService.class);
-
-
-                String username = EditTextArray[0].getText().toString().trim();
-                String email = EditTextArray[1].getText().toString().trim();
-                String password = EditTextArray[2].getText().toString().trim();
-                // Por ahora enviamos una cadena vacía para la foto
-                String photoUrl = "";
-
-                Call<JsonObject> call = apiService.registrarUser(
-                        username,
-                        email,
-                        password,
-                        photoUrl
-                );
-
-                call.enqueue(new Callback<JsonObject>() {
-                    @Override
-                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            Log.d("RESPUESTA_BODY", response.body().toString());
-                            String status = response.body().get("status").getAsString();
-                            mensaje = response.body().get("message").getAsString();
-
-                            if ("success".equals(status)) {
-                                Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
-
-                                Intent intent = new Intent(RegistroUsuario.this, MainActivity.class);
-                                intent.putExtra("logueado",true);
-                                startActivity(intent);
-                                finish();
-                            } else {
-                                Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            Toast.makeText(getApplicationContext(),
-                                    "Error en la respuesta del servidor",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<JsonObject> call, Throwable t) {
-                        Toast.makeText(getApplicationContext(),
-                                "Error de conexión: " + t.getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                        Log.e("ERROR", "Error: " + t.getMessage());
-                    }
-                });
             }
         });
 
-
-        tvInicio.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Intent intent = new Intent(RegistroUsuario.this, Logueo.class);
-                startActivity(intent);
-                finish();
-            }
+        tvInicio.setOnClickListener(v -> {
+            Intent intent = new Intent(RegistroUsuario.this, Logueo.class);
+            startActivity(intent);
+            finish();
         });
+
+
+
+
 
     }
 
-    private boolean validarCampos() {
 
-        // Validar correo electrónico
+
+
+    private boolean validarCampos() {
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(EditTextArray[1].getText().toString()).matches()) {
             Toast.makeText(this, "El correo electrónico no es válido", Toast.LENGTH_SHORT).show();
             return false;
         }
-
-        // Validar contraseña
         if (EditTextArray[2].getText().toString().length() < 8) {
             Toast.makeText(this, "La contraseña debe tener al menos 8 caracteres", Toast.LENGTH_SHORT).show();
             return false;
         }
-
         if (!EditTextArray[2].getText().toString().matches(".*[A-Z].*")) {
             Toast.makeText(this, "La contraseña debe contener al menos una letra mayúscula", Toast.LENGTH_SHORT).show();
             return false;
         }
-
         if (!EditTextArray[2].getText().toString().matches(".*\\d.*")) {
             Toast.makeText(this, "La contraseña debe contener al menos un número", Toast.LENGTH_SHORT).show();
             return false;
         }
-
-        if(!EditTextArray[2].getText().toString().equals(EditTextArray[3].getText().toString())){
+        if (!EditTextArray[2].getText().toString().equals(EditTextArray[3].getText().toString())) {
             Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
             return false;
         }
-
-
-
-
         return true;
-
-
     }
 
+    private void insertarUsuario() {
+        Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
+        ApiService apiService = retrofit.create(ApiService.class);
+
+        String username = EditTextArray[0].getText().toString().trim();
+        String email = EditTextArray[1].getText().toString().trim();
+        String password = EditTextArray[2].getText().toString().trim();
+        String tipo="N";
 
 
-    private void verificarpedirpermisosCamaraGaleria() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED ) {
-            //abrircam()
-            alertElegir();
+        Call<JsonObject> call = apiService.registrarUser(username, email, password, fotourl,tipo);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String status = response.body().get("status").getAsString();
+                    mensaje = response.body().get("message").getAsString();
 
+                    if ("success".equals(status)) {
+                        Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(RegistroUsuario.this, MainActivity.class);
+                        intent.putExtra("logueado", true);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), "Error en la respuesta del servidor", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("ERROR", "Error: " + t.getMessage());
+            }
+        });
+    }
+
+    private void verificarPermisosCamaraGaleria() {
+        // Verificar si estamos en Android 13 (API 33) o superior
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Verificar permisos de la galería y la cámara
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES)
+                    != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Solicitar permisos
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.CAMERA}, 123);
+            } else {
+                // Si los permisos están concedidos, llamar a la función que abre la cámara
+                alertElegir();
+            }
         } else {
-            //pregunto permisos (añadir galería)
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, FOTO);
+            // Para versiones anteriores a Android 13, verificamos los permisos antiguos
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Solicitar permisos
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, 123);
+            } else {
+                // Si los permisos están concedidos, llamar a la función que abre la cámara
+                alertElegir();
+            }
         }
     }
+
 
     private void alertElegir() {
         View dialogView= LayoutInflater.from(this).inflate(R.layout.dialog_camarageleria_layout,null);
@@ -232,15 +233,15 @@ public class RegistroUsuario extends AppCompatActivity {
         lcamara.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                abrircam();
+                abrirCamara();
                 dialog.dismiss();
             }
         });
-        
+
         lgaleria.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                abrirgaleria();
+                abrirGaleria();
                 dialog.dismiss();
             }
         });
@@ -248,71 +249,146 @@ public class RegistroUsuario extends AppCompatActivity {
     }
 
 
-    private void abrircam() {
-      //FUNCIONA EN EMULADOR
-      ContentValues values =new ContentValues();
-      values.put(MediaStore.Images.Media.TITLE,"Título");
-      values.put(MediaStore.Images.Media.DESCRIPTION, "Descripcion");
+    private void abrirCamara() {
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.TITLE, "Nueva Imagen");
+        values.put(MediaStore.Images.Media.DESCRIPTION, "Capturada con la cámara");
+        urimagen = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 
-      urimagen=getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,values);
-      Intent intent =new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-      intent.putExtra(MediaStore.EXTRA_OUTPUT,urimagen);
-      camara.launch(intent);
-
-
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, urimagen);
+        startActivityForResult(intent, 456);
     }
 
-    private ActivityResultLauncher<Intent> camara=registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult o) {
-                    if(o.getResultCode() == Activity.RESULT_OK){
-                        imgviewregistro.setImageURI(urimagen);
-                    }else{
-                        Toast.makeText(RegistroUsuario.this, "Cancelado por el usuario", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-    );
-
-    private void abrirgaleria() {
+    private void abrirGaleria() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        intent.setType("image/*");
-        galeria.launch(intent);
+        startActivityForResult(intent, 789);
     }
-    private ActivityResultLauncher<Intent> galeria = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                        Uri imagenSeleccionada = result.getData().getData();
-                        try {
-                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imagenSeleccionada);
-                            imgviewregistro.setImageBitmap(bitmap);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            Toast.makeText(RegistroUsuario.this, "Error al cargar la imagen", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(RegistroUsuario.this, "Cancelado por el usuario", Toast.LENGTH_SHORT).show();
-                    }
+
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+
+            try {
+                if (requestCode == 789 && data != null) {
+                    urimagen = data.getData();
                 }
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), urimagen);
+                imgviewregistro.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Error al cargar la imagen", Toast.LENGTH_SHORT).show();
             }
-    );
+        }
+
+        if (requestCode == GOOGLE_PERMISO) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                // Google Sign In was successful, authenticate with Firebase
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+
+            } catch (
+                    ApiException e) {
+                // Google Sign In failed, update UI appropriately
+                Log.w("GOOGLE", "Google sign in failed", e);
+                Toast.makeText(this, "Inicio de sesión de Google fallido", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void subirfoto(Bitmap miBitmap) {
+
+        File file = bitmapToFile(getApplicationContext(), miBitmap, "foto_" + System.currentTimeMillis() + ".png");
+
+
+        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+
+
+        MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+
+        Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
+        ApiService apiService = retrofit.create(ApiService.class);
+
+        Call<JsonObject> call = apiService.subirfoto(body);
+
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d("RESPUESTA_BODY", response.body().toString());
+
+                    try {
+                        String status = response.body().get("success").getAsBoolean() ? "success" : "error";
+                        String mensaje = response.body().get("url").getAsString();
+
+
+                        if ("success".equals(status)) {
+                            // Handle successful upload
+                            fotourl=mensaje;
+                            //SUBO LA FOTO E INSERTO AL USUARIO
+                            insertarUsuario();
+                            Toast.makeText(getApplicationContext(), "Foto subida exitosamente: " + mensaje, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Error: " + mensaje, Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        Log.e("SUBIRFOTO", "Error parsing response", e);
+                        Toast.makeText(getApplicationContext(), "Error parseando respuesta", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), "Error en la respuesta del servidor", Toast.LENGTH_SHORT).show();
+                    Log.d("SUBIRFOTO", "error servidor");
+                }
+                
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("ERROR", "Error: " + t.getMessage());
+            }
+        });
+
+    }
+    public static File bitmapToFile(Context context, Bitmap bitmap, String fileName) {
+        File file = new File(context.getExternalFilesDir(null), fileName);
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (
+                IOException e) {
+            e.printStackTrace();
+        }
+        return file;
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == FOTO || requestCode==GALERIA) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults.length > 0 && grantResults[1] == PackageManager.PERMISSION_GRANTED  ) {
+        if (requestCode == 123) {
+            boolean permisosConcedidos = true;
+            // Verificar si todos los permisos fueron concedidos
+            for (int grantResult : grantResults) {
+                if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                    permisosConcedidos = false;
+                    break;
+                }
+            }
+
+            if (permisosConcedidos) {
                 alertElegir();
-            }else{
-                Toast.makeText(this, "No se han otorgado permisos", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Los permisos son necesarios para usar la cámara", Toast.LENGTH_SHORT).show();
+
             }
         }
     }
-
 }

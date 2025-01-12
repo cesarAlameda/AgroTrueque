@@ -1,5 +1,8 @@
+import java.util.Properties
+
 plugins {
-    alias(libs.plugins.android.application)
+    id("com.android.application")
+    id ("com.google.gms.google-services")
 }
 
 android {
@@ -14,6 +17,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled = true
+
+
     }
 
     buildTypes {
@@ -31,10 +37,12 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
 dependencies {
+
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
@@ -43,14 +51,40 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.activity)
+    implementation(libs.legacy.support.v4)
+    implementation(libs.recyclerview)
+
+    //DATASTORAGE
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+    implementation(libs.datastore.rxjava3)
+    implementation(libs.datastore.preferences.rxjava3)
 
 
+    //GSON
+    implementation ("com.google.code.gson:gson:2.8.9")
 
-    implementation ("de.hdodenhof:circleimageview:3.1.0")
-    implementation ("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation ("com.dmitryborodin:pdfview-android:1.1.0")
+    // Otras librerías
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.dmitryborodin:pdfview-android:1.1.0")
+    implementation ("com.squareup.okhttp3:okhttp:4.10.0")
 
+
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation("com.google.firebase:firebase-auth")
+
+    //GLIDE
+    implementation ("com.github.bumptech.glide:glide:4.15.1")
+
+
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
+
+    //GOOGLE MAPSS
+    implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    implementation ("com.google.android.gms:play-services-location:20.0.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

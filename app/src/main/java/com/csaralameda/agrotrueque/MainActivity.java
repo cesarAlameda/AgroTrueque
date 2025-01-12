@@ -1,10 +1,14 @@
 package com.csaralameda.agrotrueque;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.csaralameda.agrotrueque.databinding.ActivityMainBinding;
+import com.csaralameda.agrotrueque.ui.anuncios.AnunciosViewModel;
 import com.csaralameda.agrotrueque.ui.perfil.PerfilViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.lifecycle.ViewModelProvider;
@@ -21,14 +25,19 @@ public class MainActivity extends AppCompatActivity {
     boolean logueado;
     public Usuario user;
     private PerfilViewModel perfilViewModel;
-
+    private AnunciosViewModel anunciosViewModel;
+    private UsuarioDataStore usuarioDataStore;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        //IMPORTANTE INICIALIZAR EL usuarioDataStore para que no de punteros nulos
+        usuarioDataStore = usuarioDataStore.getInstance(this);
+
 
         logueado = getIntent().getBooleanExtra("logueado", false);
         if (!logueado) {
+
             Intent intent = new Intent(MainActivity.this, Logueo.class);
             startActivity(intent);
             finish();
@@ -44,6 +53,14 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
+            String rutaFoto = getIntent().getStringExtra("rutaFoto");
+            if (rutaFoto != null) {
+                Bitmap fotoBitmap = BitmapFactory.decodeFile(rutaFoto);
+                user.setFotoUsuario(fotoBitmap);
+            }
+            usuarioDataStore.guardarUsuario(user);
+
+
             BottomNavigationView navView = findViewById(R.id.nav_view);
             AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                     R.id.navigation_perfil, R.id.navigation_anuncios, R.id.navigation_notifications)
@@ -52,10 +69,11 @@ public class MainActivity extends AppCompatActivity {
             NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
             NavigationUI.setupWithNavController(binding.navView, navController);
             perfilViewModel = new ViewModelProvider(this).get(PerfilViewModel.class);
+            anunciosViewModel = new ViewModelProvider(this).get(AnunciosViewModel.class);
+            anunciosViewModel.setUser(user);
             perfilViewModel.setUser(user);
 
             //RECARGO LA VISTA PARA QUE ESTÉ CON LOS DATOS GARGADOS
-            navController.navigate(R.id.navigation_anuncios);
             navController.navigate(R.id.navigation_perfil);
 
 

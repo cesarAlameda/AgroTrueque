@@ -1,10 +1,12 @@
-package com.csaralameda.agrotrueque;
+package com.csaralameda.agrotrueque.GeneralParam;
 
 import android.os.Bundle;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.csaralameda.agrotrueque.R;
 import com.pdfview.PDFView;
-import java.io.File;
 
 public class PDFvista extends AppCompatActivity {
 
@@ -16,10 +18,9 @@ public class PDFvista extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_pdfvista);
         vistaPdf = findViewById(R.id.vistaPdf);
-
+        //pdf hecho con termly (completar)1
         try {
-            File file = new File(getCacheDir(), "Privacidad.pdf");
-            vistaPdf.fromFile(file);
+            vistaPdf.fromAsset("Privacidad.pdf");
             vistaPdf.isZoomEnabled();
             vistaPdf.show();
 

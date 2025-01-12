@@ -9,7 +9,7 @@
 
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/imageView"
+        android:id="@+id/imUser"
         android:layout_width="153dp"
         android:layout_height="133dp"
         android:layout_gravity="center"
@@ -81,16 +81,16 @@
         android:id="@+id/btnInicio"
         android:layout_width="364dp"
         android:layout_height="65dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:backgroundTint="#436B1C"
         android:text="Iniciar Sesión"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.446"
+        app:layout_constraintHorizontal_bias="0.34"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView16" />
+        app:layout_constraintTop_toBottomOf="@+id/tvPassForget" />
 
     <TextView
         android:id="@+id/textView3"
@@ -104,25 +104,26 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.444"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintTop_toBottomOf="@+id/imUser" />
+
 
     <TextView
-        android:id="@+id/textView16"
+        android:id="@+id/tvPassForget"
         android:layout_width="163dp"
         android:layout_height="24dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:text="¿Olvidaste tu contraseña?"
         android:textColor="#436B1C"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.879"
+        app:layout_constraintHorizontal_bias="0.875"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edPassLog" />
+        app:layout_constraintTop_toBottomOf="@+id/googleSignInButton" />
 
     <TextView
         android:id="@+id/TVregistro"
         android:layout_width="266dp"
         android:layout_height="28dp"
-        android:layout_marginTop="44dp"
+        android:layout_marginTop="36dp"
         android:text="¿No tienes una cuenta? Regístrate"
         android:textAlignment="center"
         android:textColor="#436B1C"
@@ -132,5 +133,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnInicio" />
 
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/googleSignInButton"
+        android:layout_width="365dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="12dp"
+        app:buttonSize="wide"
+        app:colorScheme="light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.396"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edPassLog" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
