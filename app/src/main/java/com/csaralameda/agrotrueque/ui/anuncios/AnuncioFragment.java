@@ -23,7 +23,7 @@ public class AnuncioFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-
+    private RecyclerView rc;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -58,18 +58,22 @@ public class AnuncioFragment extends Fragment {
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
+            rc = (RecyclerView) view;
 
 
             if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
+                rc.setLayoutManager(new LinearLayoutManager(context));
                 
             } else {
 
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
+                rc.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyanuncioRecyclerViewAdapter(Anuncios.listanuncios));
+            rc.setAdapter(new MyanuncioRecyclerViewAdapter(Anuncios.listanuncios));
         }
         return view;
+    }
+
+    public void actualizarAnuncios(){
+        rc.getAdapter().notifyDataSetChanged();
     }
 }

@@ -12,10 +12,10 @@
         tools:targetApi="33" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-
-
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:targetApi="30" />
@@ -25,13 +25,15 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:forceDarkAllowed="false"
         android:fullBackupContent="@xml/backup_rules"
-        android:label="@string/app_name"
         android:icon="@mipmap/icono"
+        android:label="@string/app_name"
         android:roundIcon="@mipmap/icono_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:targetApi="33"
-        >
+        tools:targetApi="33">
+        <activity
+            android:name=".ui.chat.Chat"
+            android:exported="false" />
         <activity
             android:name=".ui.anuncios.CrearAnuncio"
             android:exported="false" />
@@ -58,9 +60,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".ui.chat.MessaginService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDepzj1jx2DThRcKei_pFfl5EXcBg3BXDs"/>
+            android:value="AIzaSyDepzj1jx2DThRcKei_pFfl5EXcBg3BXDs" />
     </application>
 
 </manifest>

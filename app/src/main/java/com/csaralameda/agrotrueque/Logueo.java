@@ -347,90 +347,79 @@ Logueo extends AppCompatActivity {
                         user.setNombreUsuario(usuario.get("nombreUsuario").getAsString());
                         user.setTipo(usuario.get("tipo").getAsString());
 
-                        if(user.getTipo().equals("G")){
+                        String fotoUrl = usuario.get("fotoUsuario").getAsString();
 
-                            String fotoUrl = usuario.get("fotoUsuario").getAsString();
+                        Glide.with(getApplicationContext())
+                                .asBitmap()
+                                .load(fotoUrl)
+                                .error(R.drawable.avatar)
+                                .into(new CustomTarget<Bitmap>() {
+                                    @Override
+                                    public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
+                                        if (bitmap != null) {
+                                            Log.d("BitmapCarga", "Bitmap cargado correctamente");
+                                            Log.d("BitmapDimensions", "Width: " + bitmap.getWidth() + ", Height: " + bitmap.getHeight());
+                                            user.setFotoUsuario(bitmap);
 
-                            Glide.with(getApplicationContext())
-                                    .asBitmap()
-                                    .load(fotoUrl)
-                                    .error(R.drawable.avatar)
-                                    .into(new CustomTarget<Bitmap>() {
-                                        @Override
-                                        public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
-                                            if (bitmap != null) {
+                                            Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
+                                            Intent intent = new Intent(Logueo.this, MainActivity.class);
+                                            intent.putExtra("logueado", true);
 
-                                                Log.d("BitmapCarga", "Bitmap cargado correctamente");
-                                                Log.d("BitmapDimensions", "Width: " + bitmap.getWidth() + ", Height: " + bitmap.getHeight());
-                                                user.setFotoUsuario(bitmap); // Asignar el Bitmap al usuario
+                                            if (user.getFotoUsuario() != null) {
+                                                String rutaFoto = guardarImagenEnCache(user.getFotoUsuario());
+                                                Log.d("IMAGENLOGUEO", "IMAGENGUARDADA");
+                                                intent.putExtra("rutaFoto", rutaFoto);
+                                                user.setFotoUsuario(null); // Evita pasar el Bitmap
+                                            }
+                                            intent.putExtra("user", (Parcelable) user);
+                                            startActivity(intent);
+                                            finish();
+                                        } else {
+                                            Log.e("BitmapError", "Bitmap es nulo");
+                                        }
+                                    }
 
+                                    @Override
+                                    public void onLoadCleared(@Nullable Drawable placeholder) {
+                                        // Si es necesario limpiar recursos, se hace aquí
+                                    }
 
-                                                Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
-                                                Intent intent = new Intent(Logueo.this, MainActivity.class);
-                                                intent.putExtra("logueado", true);
-
-                                                if (user.getFotoUsuario() != null) {
-                                                    String rutaFoto = guardarImagenEnCache(user.getFotoUsuario());
-                                                    Log.d("IMAGENLOGUEO","IMAGENGUARDADA");
-                                                    intent.putExtra("rutaFoto", rutaFoto);
-                                                    user.setFotoUsuario(null); // Evita pasar el Bitmap
+                                    @Override
+                                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                                        super.onLoadFailed(errorDrawable);
+                                        String fotoBase64 = usuario.get("foto").getAsString();
+                                        if (!"empty".equals(fotoBase64)) {
+                                            try {
+                                                if (fotoBase64.startsWith("data:image/png;base64,")) {
+                                                    fotoBase64 = fotoBase64.replace("data:image/png;base64,", "");
                                                 }
-                                                intent.putExtra("user", (Parcelable) user);
-                                                startActivity(intent);
-                                                finish();
 
-                                            } else {
-                                                Log.e("BitmapError", "Bitmap es nulo");
+                                                byte[] decodedBytes = Base64.decode(fotoBase64, Base64.DEFAULT);
+
+                                                Bitmap fotoBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+
+                                                user.setFotoUsuario(fotoBitmap);
+                                            } catch (Exception e) {
+                                                Log.e("ERROR_FOTO", "Error convirtiendo foto", e);
+                                                user.setFotoUsuario(BitmapFactory.decodeResource(getResources(), R.drawable.avatar));
                                             }
                                         }
 
-                                        @Override
-                                        public void onLoadCleared(@Nullable Drawable placeholder) {
-                                            // Si es necesario limpiar recursos, se hace aquí
-                                        }
+                                        Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
+                                        Intent intent = new Intent(Logueo.this, MainActivity.class);
+                                        intent.putExtra("logueado", true);
 
-                                        @Override
-                                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                                            super.onLoadFailed(errorDrawable);
-                                            Log.e("BitmapError", "Fallo al cargar la imagen con Glide");
+                                        if (user.getFotoUsuario() != null) {
+                                            String rutaFoto = guardarImagenEnCache(user.getFotoUsuario());
+                                            Log.d("IMAGENLOGUEO", "IMAGENGUARDADA");
+                                            intent.putExtra("rutaFoto", rutaFoto);
+                                            user.setFotoUsuario(null); // Evita pasar el Bitmap
                                         }
-                                    });
-                        }else{
-                            String fotoBase64 = usuario.get("foto").getAsString();
-                            if (!"empty".equals(fotoBase64)) {
-                                try {
-                                    if (fotoBase64.startsWith("data:image/png;base64,")) {
-                                        fotoBase64 = fotoBase64.replace("data:image/png;base64,", "");
+                                        intent.putExtra("user", (Parcelable) user);
+                                        startActivity(intent);
+                                        finish();
                                     }
-
-                                    byte[] decodedBytes = Base64.decode(fotoBase64, Base64.DEFAULT);
-
-                                    Bitmap fotoBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-
-                                    user.setFotoUsuario(fotoBitmap);
-                                } catch (Exception e) {
-                                    Log.e("ERROR_FOTO", "Error convirtiendo foto", e);
-                                    user.setFotoUsuario(BitmapFactory.decodeResource(getResources(), R.drawable.avatar));
-                                }
-                            }
-
-                            Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(Logueo.this, MainActivity.class);
-                            intent.putExtra("logueado", true);
-
-                            if (user.getFotoUsuario() != null) {
-                                String rutaFoto = guardarImagenEnCache(user.getFotoUsuario());
-                                Log.d("IMAGENLOGUEO","IMAGENGUARDADA");
-                                intent.putExtra("rutaFoto", rutaFoto);
-                                user.setFotoUsuario(null); // Evita pasar el Bitmap
-                            }
-                            intent.putExtra("user", (Parcelable) user);
-                            startActivity(intent);
-                            finish();
-                        }
-
-
-
+                                });
                     } else {
                         Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
                     }
@@ -439,15 +428,13 @@ Logueo extends AppCompatActivity {
                             "Error en la respuesta del servidor",
                             Toast.LENGTH_SHORT).show();
                 }
-
             }
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
                 Toast.makeText(getApplicationContext(),
-                        "Error de conexión: " + t.getMessage(),
+                        "Error en la conexión: " + t.getMessage(),
                         Toast.LENGTH_SHORT).show();
-                Log.e("ERROR", "Error: " + t.getMessage());
             }
         });
     }

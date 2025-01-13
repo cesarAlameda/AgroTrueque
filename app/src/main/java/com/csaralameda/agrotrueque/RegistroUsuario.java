@@ -62,10 +62,17 @@ public class RegistroUsuario extends Activity {
     private String mensaje;
     Bitmap bitmap;
     String fotourl="no hay foto";
-
+    private boolean modoEditar=false;
+    private boolean esdeGoogle=false;
+    private Button btnRegistro;
+    private UsuarioDataStore usuarioDataStore;
     private static final int GOOGLE_PERMISO = 10; //
+    private TextView tvpassregistro;
+    private TextView tvpassregistroconfir;
+    private boolean bitmapcambiado=false;
 
 
+    @SuppressLint("CheckResult")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
@@ -74,8 +81,10 @@ public class RegistroUsuario extends Activity {
 
         mensaje = "";
         TextView tvInicio = findViewById(R.id.tvInicio);
-        Button btnRegistro = findViewById(R.id.btnRegistro);
+        btnRegistro = findViewById(R.id.btnRegistro);
         imgviewregistro = findViewById(R.id.imageView9);
+        tvpassregistro=findViewById(R.id.tvpassregistro);
+        tvpassregistroconfir=findViewById(R.id.tvpassregistroconfir);
 
 
 
@@ -86,6 +95,11 @@ public class RegistroUsuario extends Activity {
         EditTextArray[2] = findViewById(R.id.edPass);
         EditTextArray[3] = findViewById(R.id.edPassconfirmado);
 
+        modoEditar= getIntent().getBooleanExtra("modoEditar",false);
+        if(modoEditar){
+            modoeditarmetodo();
+        }
+
         imgviewregistro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -95,30 +109,127 @@ public class RegistroUsuario extends Activity {
         });
 
         btnRegistro.setOnClickListener(v -> {
-            if (validarCampos()) {
+
+            if (modoEditar) {
+                usuarioDataStore = usuarioDataStore.getInstance(this);
+
+                usuarioDataStore.getUser().subscribe(usuario -> {
+                    String nombreUsuario = EditTextArray[0].getText().toString();
+                    String correoUsuario = EditTextArray[1].getText().toString();
+                    Log.d("bitmap",bitmapcambiado+" ");
+                    if (bitmapcambiado) {
+                        subirfoto(bitmap);
+
+                    } else {
+                        actualizarUsuario(usuario.getIdUsuario(), nombreUsuario, correoUsuario, null);
+                    }
+                });
+            }else{
+                if (validarCampos()) {
 
 
-                if(bitmap!=null){
-                    subirfoto(bitmap);
-                }else{
-                    insertarUsuario();
+                    if(bitmap!=null){
+                        subirfoto(bitmap);
+                    }else{
+                        insertarUsuario();
+                    }
+
                 }
             }
-        });
 
-        tvInicio.setOnClickListener(v -> {
-            Intent intent = new Intent(RegistroUsuario.this, Logueo.class);
-            startActivity(intent);
-            finish();
         });
 
 
-
-
+        if(!modoEditar){
+            tvInicio.setOnClickListener(v -> {
+                Intent intent = new Intent(RegistroUsuario.this, Logueo.class);
+                startActivity(intent);
+                finish();
+            });
+        }else{
+            tvInicio.setVisibility(View.GONE);
+        }
 
     }
 
+    private void actualizarUsuario(int idUsuario, String nombreUsuario, String correoUsuario, String fotoUsuario) {
+        Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
+        ApiService apiService = retrofit.create(ApiService.class);
 
+        Call<JsonObject> call;
+        if (fotoUsuario != null) {
+            call = apiService.actualizarUser(idUsuario, nombreUsuario, correoUsuario, fotoUsuario);
+        } else {
+            call = apiService.actualizarUser(idUsuario, nombreUsuario, correoUsuario, "");
+        }
+
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String status = response.body().get("status").getAsString();
+                    String mensaje = response.body().get("message").getAsString();
+
+                    if ("success".equals(status)) {
+                        Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        Log.d("ERROR",mensaje);
+                    }
+                } else {
+                    Log.d("ERROR","Error en la respuesta del servidor");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("ERROR",t.getMessage());
+                ;
+            }
+        });
+    }
+
+
+
+    @SuppressLint("CheckResult")
+    private void modoeditarmetodo() {
+
+
+        btnRegistro.setText("Guardar cambios");
+        usuarioDataStore = usuarioDataStore.getInstance(this);
+
+
+        usuarioDataStore.getUser().subscribe(usuario -> {
+            //aqui all lo relacionado con el usuario
+            esdeGoogle=usuario.getTipo().equals("G");
+
+            if(esdeGoogle){
+                //si viene de google
+                EditTextArray[1].setEnabled(false); //email desactivado
+                EditTextArray[2].setVisibility(View.GONE); //contraseña
+                EditTextArray[3].setVisibility(View.GONE); //confirmar contraseña
+
+            }else{
+                EditTextArray[2].setVisibility(View.GONE);
+                EditTextArray[3].setVisibility(View.GONE);
+
+            }
+
+            EditTextArray[0].setText(usuario.getNombreUsuario());
+            EditTextArray[1].setText(usuario.getCorreoUsuario());
+            tvpassregistro.setVisibility(View.GONE);
+            tvpassregistroconfir.setVisibility(View.GONE);
+
+
+            if(usuario.getFotoUsuario()!=null){
+                imgviewregistro.setImageBitmap(usuario.getFotoUsuario());
+            }
+
+
+        });
+
+
+    }
 
 
     private boolean validarCampos() {
@@ -187,9 +298,7 @@ public class RegistroUsuario extends Activity {
     }
 
     private void verificarPermisosCamaraGaleria() {
-        // Verificar si estamos en Android 13 (API 33) o superior
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // Verificar permisos de la galería y la cámara
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES)
                     != PackageManager.PERMISSION_GRANTED
                     || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
@@ -279,6 +388,7 @@ public class RegistroUsuario extends Activity {
                 }
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), urimagen);
                 imgviewregistro.setImageBitmap(bitmap);
+                bitmapcambiado=true;
             } catch (IOException e) {
                 e.printStackTrace();
                 Toast.makeText(this, "Error al cargar la imagen", Toast.LENGTH_SHORT).show();
@@ -330,7 +440,20 @@ public class RegistroUsuario extends Activity {
                             // Handle successful upload
                             fotourl=mensaje;
                             //SUBO LA FOTO E INSERTO AL USUARIO
-                            insertarUsuario();
+                            if(modoEditar){
+                                usuarioDataStore.getUser().subscribe(usuario -> {
+                                    String nombreUsuario = EditTextArray[0].getText().toString();
+                                    String correoUsuario = EditTextArray[1].getText().toString();
+                                    Log.d("hola",usuario.getIdUsuario()+ nombreUsuario+ correoUsuario+ fotourl);
+                                    actualizarUsuario(usuario.getIdUsuario(), nombreUsuario, correoUsuario, fotourl);
+
+                                });
+
+
+                            }else{
+                                insertarUsuario();
+                            }
+
                             Toast.makeText(getApplicationContext(), "Foto subida exitosamente: " + mensaje, Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(getApplicationContext(), "Error: " + mensaje, Toast.LENGTH_SHORT).show();
@@ -343,7 +466,7 @@ public class RegistroUsuario extends Activity {
                     Toast.makeText(getApplicationContext(), "Error en la respuesta del servidor", Toast.LENGTH_SHORT).show();
                     Log.d("SUBIRFOTO", "error servidor");
                 }
-                
+
             }
 
             @Override

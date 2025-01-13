@@ -9,8 +9,12 @@ import android.widget.TextView;
 
 import com.csaralameda.agrotrueque.databinding.ActivityMainBinding;
 import com.csaralameda.agrotrueque.ui.anuncios.AnunciosViewModel;
+import com.csaralameda.agrotrueque.ui.chat.MessaginService;
 import com.csaralameda.agrotrueque.ui.perfil.PerfilViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
+
 import androidx.lifecycle.ViewModelProvider;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -33,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         //IMPORTANTE INICIALIZAR EL usuarioDataStore para que no de punteros nulos
         usuarioDataStore = usuarioDataStore.getInstance(this);
+        FirebaseApp.initializeApp(this);
 
 
         logueado = getIntent().getBooleanExtra("logueado", false);
@@ -76,8 +81,11 @@ public class MainActivity extends AppCompatActivity {
             //RECARGO LA VISTA PARA QUE ESTÉ CON LOS DATOS GARGADOS
             navController.navigate(R.id.navigation_perfil);
 
+            MessaginService messagingService = new MessaginService();
+            messagingService.getToken();
 
 
         }
     }
+
 }
