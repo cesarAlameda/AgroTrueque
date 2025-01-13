@@ -20,7 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 
-
+import com.csaralameda.agrotrueque.RegistroUsuario;
 import com.csaralameda.agrotrueque.Usuario;
 import com.csaralameda.agrotrueque.databinding.FragmentPerfilBinding;
 import com.csaralameda.agrotrueque.GeneralParam.*;
@@ -68,24 +68,12 @@ public class PerfilFragment extends Fragment {
                                 // Acción para lyEditarPerfil
                                 Log.d("EDITARPERFIL", "EDITAR PERFIL");
 
-
-                                //si el usario es de google podrá editar foto de perfil, nombre de usario
-                                if(user.getTipo().equals("G")){
-                                    Log.d("PERFILFRAGMENTLOGINEDITAR","SE HA LOGUEADO POR GOOGLE");
-
-
-
-                                }else{
                                     //si el usurario no es de google podrá editar también el correo electrónico
                                     Log.d("PERFILFRAGMENTLOGINEDITAR", "SE HA LOGUEADO NORMAL");
 
-
-                                }
-
-
-
-
-
+                                    Intent intentRegistro = new Intent(v.getContext(), RegistroUsuario.class);
+                                    intentRegistro.putExtra("modoEditar",true);
+                                    startActivity(intentRegistro);
 
                                 break;
                             case 1:

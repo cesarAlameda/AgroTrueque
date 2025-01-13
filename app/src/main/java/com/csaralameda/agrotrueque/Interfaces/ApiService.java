@@ -9,6 +9,7 @@ import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
@@ -65,6 +66,26 @@ public interface ApiService {
                 @Field("new_password") String new_password,
                 @Field("code") String code
                 );
+        @FormUrlEncoded
+        @POST("actualizar_usuario.php")
+        Call<JsonObject> actualizarUser(
+                @Field("idUsuario") int idUsuario,
+                @Field("nombreUsuario") String nombreUsuario,
+                @Field("correoUsuario") String correoUsuario,
+                @Field("fotoUsuario") String fotoUsuario
+        );
 
+        @FormUrlEncoded
+        @POST("insertar_anuncio.php")
+        Call<JsonObject> insertarAnuncio(
+                @Field("descripcion") String descripcion,
+                @Field("localizacion") String localizacion,
+                @Field("estado") String estado,
+                @Field("fotoAnuncio") String fotoAnuncio,
+                @Field("idUsuario") int idUsuario
+        );
+
+        @GET("select_anuncios.php")
+        Call<JsonObject> obtenerAnuncios();
 
 }

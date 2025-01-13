@@ -34,9 +34,10 @@ public class    MyanuncioRecyclerViewAdapter extends RecyclerView.Adapter<Myanun
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         holder.tvHoraAnuncio.setText(mValues.get(position).getHora());
-        holder.tvUbicacionAnuncio.setText(mValues.get(position).getHora());
-        holder.tvTituloAnuncio.setText(mValues.get(position).getHora());
-        holder.imgAnuncio.setImageResource(R.drawable.avatar);
+        holder.tvUbicacionAnuncio.setText(mValues.get(position).getLocalizacion());
+        holder.tvTituloAnuncio.setText(mValues.get(position).getDescripcion());
+        holder.imgAnuncio.setImageBitmap(mValues.get(position).getFotoAnuncio());
+
     }
 
     @Override

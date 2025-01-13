@@ -78,6 +78,8 @@ dependencies {
 
     //GLIDE
     implementation ("com.github.bumptech.glide:glide:4.15.1")
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.firestore)
 
 
     annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
