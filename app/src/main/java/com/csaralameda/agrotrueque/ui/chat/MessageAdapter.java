@@ -7,6 +7,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.csaralameda.agrotrueque.R;
+import com.csaralameda.agrotrueque.UsuarioDataStore;
 import com.google.firebase.auth.FirebaseAuth;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -16,12 +17,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     private static final int VIEW_TYPE_SENT = 1;
     private static final int VIEW_TYPE_RECEIVED = 2;
     private List<Message> messages;
-    private String currentUserId;
+    private int currentUserId;
+    private UsuarioDataStore usuarioDataStore;
 
     public MessageAdapter(List<Message> messages) {
         this.messages = messages;
-        this.currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        this.currentUserId = 2 ;
     }
+
+
 
     @NonNull
     @Override

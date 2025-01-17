@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,6 +62,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -73,7 +75,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class CrearAnuncio extends AppCompatActivity {
+public class CrearAnuncio extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
     private SupportMapFragment mapFragment;
     private Button guardarAnuncio;
@@ -88,8 +90,10 @@ public class CrearAnuncio extends AppCompatActivity {
     private String horaactual;
     private UsuarioDataStore usuarioDataStore;
     private String fotourl;
-
-
+    private boolean editando=false;
+    private int idAnuncio;
+    private Anuncio anuncio;
+    private String localizacion;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private static final String[]  PERMISSIONS = {
@@ -105,9 +109,12 @@ public class CrearAnuncio extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_crear_anuncio);
 
+        editando=getIntent().getBooleanExtra("Editando",false);
+        idAnuncio=getIntent().getIntExtra("idAnuncio",0);
         nombreCiudad = "";
         latitud = 0.0;
         longitud = 0.0;
+
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -119,15 +126,23 @@ public class CrearAnuncio extends AppCompatActivity {
         } else {
             initializeMap();
         }
+
+
         usuarioDataStore = usuarioDataStore.getInstance(this);
         etDescripcion= findViewById(R.id.etDescripcion);
         guardarAnuncio = findViewById(R.id.guardarAnuncio);
+
         ivFotoAnuncio= findViewById(R.id.ivFotoAnuncio);
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
         int second = calendar.get(Calendar.SECOND);
         horaactual = String.format("%02d:%02d:%02d", hour, minute, second);
+        if(editando){
+            guardarAnuncio.setText("Guardar Cambios");
+            cargaranuncio(idAnuncio);
+
+        }
         ivFotoAnuncio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -139,35 +154,73 @@ public class CrearAnuncio extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                if(etDescripcion.getText().toString()==null || etDescripcion.getText().toString().equals("")){
-                    Toast.makeText(CrearAnuncio.this, "Descripción del producto incorrecta", Toast.LENGTH_SHORT).show();
+
+                if(editando){
+                    //hago update del anuncio
+
+                        Log.d("local",sacarNombreCiudad());
+
+                        if(bitmapcambiado){
+                            usuarioDataStore.getUser().subscribe(usuario -> {
+                                subirfoto(bitmap,usuario.getIdUsuario());
+                            });
+                        }else{
+                            sacarNombreCiudad();
+                            actualizarAnuncio(etDescripcion.getText().toString(), sacarNombreCiudad(), fotourl);
+                        }
+
+                }else{
+                    //registro el anuncio
+                    if(etDescripcion.getText().toString()==null || etDescripcion.getText().toString().equals("")){
+                        Toast.makeText(CrearAnuncio.this, "Descripción del producto incorrecta", Toast.LENGTH_SHORT).show();
+                    }
+
+                    if(!bitmapcambiado){
+                        Toast.makeText(CrearAnuncio.this, "La imagen es obligatoria", Toast.LENGTH_SHORT).show();
+                    }
+
+                    nombreCiudad = sacarNombreCiudad();
+                    // Hora basada en la ubicación
+                    Log.d("NOMBRECIUDAD", nombreCiudad);
+                    Log.d("HORA_ACTUAL", horaactual);
+                    usuarioDataStore.getUser().subscribe(usuario -> {
+
+                        subirfoto(bitmap,usuario.getIdUsuario());
+
+
+
+                    });
                 }
-
-                if(!bitmapcambiado){
-                    Toast.makeText(CrearAnuncio.this, "La imagen es obligatoria", Toast.LENGTH_SHORT).show();
-                }
-
-                nombreCiudad = sacarNombreCiudad();
-               // Hora basada en la ubicación
-                Log.d("NOMBRECIUDAD", nombreCiudad);
-                Log.d("HORA_ACTUAL", horaactual);
-                usuarioDataStore.getUser().subscribe(usuario -> {
-
-                    subirfoto(bitmap,usuario.getIdUsuario());
-
-                    Anuncios.listanuncios.add(new Anuncio(1, etDescripcion.getText().toString(), nombreCiudad, horaactual, "N",
-                            bitmap, usuario.getIdUsuario()));
-
-
-                });
-
-
-
-
 
 
             }
-         private void insertarAnuncio(int idUser) {
+
+            private void actualizarAnuncio(String desc, String loca, String fotourl) {
+                Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
+                ApiService apiService = retrofit.create(ApiService.class);
+                Call<JsonObject> call = apiService.actualizarAnuncio(idAnuncio, desc, loca, fotourl);
+
+                call.enqueue(new Callback<JsonObject>() {
+                    @Override
+                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                        if (response.isSuccessful()) {
+                            Log.d("UpdateSuccess", response.body().toString());
+                            finish();
+                        } else {
+                            // Manejar errores
+                            Log.e("UpdateError", "Error: " + response.message());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<JsonObject> call, Throwable t) {
+                        Log.e("NetworkError", t.getMessage(), t);
+                    }
+                });
+            }
+
+
+            private void insertarAnuncio(int idUser) {
 
                 Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
                 ApiService apiService = retrofit.create(ApiService.class);
@@ -177,10 +230,8 @@ public class CrearAnuncio extends AppCompatActivity {
                 String localizacion = nombreCiudad;
                 String estado = "N";
 
-              ; // Cambia esto con la URL o el path de la foto
                 int idUsuario = idUser; // Obtén el ID del usuario según tu lógica
 
-                // Llamada al método de la API
                 Call<JsonObject> call = apiService.insertarAnuncio(descripcion, localizacion, estado, fotourl, idUsuario);
                 call.enqueue(new Callback<JsonObject>() {
                     @Override
@@ -238,7 +289,13 @@ public class CrearAnuncio extends AppCompatActivity {
                                 if ("success".equals(status)) {
                                     // Handle successful upload
                                     fotourl=mensaje;
-                                    insertarAnuncio(idUser);
+                                    if(editando){
+                                        //descripcion, localizacion, urlfoto
+                                        actualizarAnuncio(etDescripcion.getText().toString(), sacarNombreCiudad(), fotourl);
+                                    }else{
+                                        insertarAnuncio(idUser);
+                                    }
+
 
                                     Toast.makeText(getApplicationContext(), "Foto subida exitosamente: " + mensaje, Toast.LENGTH_SHORT).show();
                                 } else {
@@ -254,6 +311,10 @@ public class CrearAnuncio extends AppCompatActivity {
                         }
 
                     }
+
+
+
+
 
                     @Override
                     public void onFailure(Call<JsonObject> call, Throwable t) {
@@ -280,28 +341,106 @@ public class CrearAnuncio extends AppCompatActivity {
         });
     }
 
+    private void cargaranuncio(int idAnuncio) {
+        Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
+        ApiService apiService = retrofit.create(ApiService.class);
+
+        Call<JsonObject> call = apiService.selectanuncioid(idAnuncio);
+
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d("RESPUESTA_BODY", response.body().toString());
+                    String status = response.body().get("status").getAsString();
+                    String mensaje = response.body().get("message").getAsString();
+
+                    if ("success".equals(status)) {
+                        JsonObject responseBody = response.body();
+                        JsonObject anuncioObj = responseBody.getAsJsonObject("anuncio");
+
+                        int idAnuncio = anuncioObj.get("idAnuncio").getAsInt();
+                        String descripcion = anuncioObj.get("descripcion").getAsString();
+                        localizacion = anuncioObj.get("localizacion").getAsString();
+                        String hora = anuncioObj.get("hora").getAsString();
+                        String estado = anuncioObj.get("estado").getAsString();
+                        String urlfoto = anuncioObj.get("fotoAnuncio").getAsString();
+                        int idUsuario = anuncioObj.get("idUsuario").getAsInt();
+
+                        cargarfoto(idAnuncio, urlfoto, descripcion, localizacion, hora, estado, idUsuario);
+                    } else {
+                        Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(),
+                            "Error en la respuesta del servidor",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Toast.makeText(getApplicationContext(),
+                        "Error en la conexión: " + t.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void cargarfoto(int idanuncio, String base64Image, String descripcion, String localizacion,
+                            String hora, String estado, int idUsuario) {
+        try {
+            String base64Data = base64Image.substring(base64Image.indexOf(",") + 1);
+            byte[] decodedString = Base64.decode(base64Data, Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            if (localizacion!=null) {
+                cargarUbicacion(localizacion);
+            }
+            if (bitmap != null) {
+                anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, bitmap, idUsuario);
+            } else {
+                Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar);
+                anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, defaultBitmap, idUsuario);
+            }
+
+            ivFotoAnuncio.setImageBitmap(anuncio.getFotoAnuncio());
+            etDescripcion.setText(descripcion);
+
+
+
+
+        } catch (Exception e) {
+            Log.e("ImagenError", "Error decodificando imagen base64", e);
+            Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar);
+            anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, defaultBitmap, idUsuario);
+        }
+
+
+
+}
+
     private void verificarPermisosCamaraGaleria() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
                     != PackageManager.PERMISSION_GRANTED
                     || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                     != PackageManager.PERMISSION_GRANTED) {
                 // Solicitar permisos
                 ActivityCompat.requestPermissions(this,
-                        new String[]{android.Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.CAMERA}, 123);
+                        new String[]{Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.CAMERA}, 123);
             } else {
                 // Si los permisos están concedidos, llamar a la función que abre la cámara
                 alertElegir();
             }
         } else {
             // Para versiones anteriores a Android 13, verificamos los permisos antiguos
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED
                     || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                     != PackageManager.PERMISSION_GRANTED) {
                 // Solicitar permisos
                 ActivityCompat.requestPermissions(this,
-                        new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, 123);
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, 123);
             } else {
                 // Si los permisos están concedidos, llamar a la función que abre la cámara
                 alertElegir();
@@ -464,12 +603,13 @@ public class CrearAnuncio extends AppCompatActivity {
         Location location = new Location("manual");
         location.setLatitude(latitud);
         location.setLongitude(longitud);
-
+        List<Address> dir = Collections.emptyList();
+        dir.clear();
         Geocoder geo = new Geocoder(getApplicationContext(), Locale.getDefault());
 
         if (location != null) {
             try {
-                List<Address> dir = geo.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                dir = geo.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
                 Address address = dir.get(0);
                 return address.getLocality();
             } catch (IOException e) {
@@ -477,5 +617,40 @@ public class CrearAnuncio extends AppCompatActivity {
             }
         }
         return "desconocido";
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+        mMap = googleMap;
+    }
+
+    private void cargarUbicacion(String ciudad) {
+        if (mMap == null) return;
+        Log.d("cargoubi","CARGAR UBICACION");
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocationName(ciudad, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address address = addresses.get(0);
+                LatLng location = new LatLng(address.getLatitude(), address.getLongitude());
+                latitud=address.getLatitude();
+                longitud=address.getLongitude();
+                mMap.clear();
+                mMap.addMarker(new MarkerOptions()
+                        .position(location)
+                        .title(ciudad));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 12f));
+
+                if (anuncio != null) {
+                    anuncio.setLocalizacion(ciudad);
+
+                }
+            } else {
+                Toast.makeText(this, "No se encontró la ubicación: " + ciudad, Toast.LENGTH_SHORT).show();
+            }
+        } catch (IOException e) {
+            Log.e("MapError", "Error al localizar la ciudad", e);
+            Toast.makeText(this, "Error al localizar la ciudad", Toast.LENGTH_SHORT).show();
+        }
     }
 }

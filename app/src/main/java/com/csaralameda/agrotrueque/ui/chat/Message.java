@@ -11,7 +11,7 @@ public class Message {
     private Date timestamp;
     private boolean read;
 
-    public Message() {} // Required for Firebase
+    public Message() {}
 
     public Message(String senderId, String receiverId, String content) {
         this.senderId = senderId;
@@ -21,7 +21,7 @@ public class Message {
         this.read = false;
     }
 
-    // Getters and Setters
+
     public String getMessageId() { return messageId; }
     public void setMessageId(String messageId) { this.messageId = messageId; }
     public String getSenderId() { return senderId; }

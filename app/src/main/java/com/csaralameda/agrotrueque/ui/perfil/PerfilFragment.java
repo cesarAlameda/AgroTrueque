@@ -24,7 +24,7 @@ import com.csaralameda.agrotrueque.RegistroUsuario;
 import com.csaralameda.agrotrueque.Usuario;
 import com.csaralameda.agrotrueque.databinding.FragmentPerfilBinding;
 import com.csaralameda.agrotrueque.GeneralParam.*;
-
+import com.csaralameda.agrotrueque.ui.anuncios.misanuncios.MisAnuncios;
 
 
 public class PerfilFragment extends Fragment {
@@ -52,6 +52,17 @@ public class PerfilFragment extends Fragment {
             imUser.setImageBitmap(user.getFotoUsuario());
             TextViewArray = new TextView[NPARAMUSARIO];
             LinearLayoutArray=new LinearLayout[NLAYOUT];
+            LinearLayout linear2=binding.linearLayout2;
+            linear2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(v.getContext(), MisAnuncios.class);
+                    startActivity(intent);
+
+
+                }
+            });
+
 
             LinearLayoutArray[0] = binding.lyEditarPerfil;
             LinearLayoutArray[1] = binding.lyConfig;
@@ -113,15 +124,17 @@ public class PerfilFragment extends Fragment {
             }
             TextViewArray[0] = binding.tvNombreuser;
             TextViewArray[1] = binding.tvCorreo;
+            /**
             TextViewArray[2] = binding.tvNtrueques;
             TextViewArray[3] = binding.tvValoracion;
-            TextViewArray[4] = binding.tvNanuncios;
+            TextViewArray[4] = binding.tvNanuncios;**/
 
             TextViewArray[0].setText(user.getNombreUsuario());
             TextViewArray[1].setText(user.getCorreoUsuario());
+            /**
             TextViewArray[2].setText(String.valueOf(user.getnIntercambios()));
             TextViewArray[3].setText("   " + user.getValoracion() + "⭐");
-            TextViewArray[4].setText(String.valueOf(user.getnAnuncios()));
+            TextViewArray[4].setText(String.valueOf(user.getnAnuncios()));**/
         }
 
         return root;
