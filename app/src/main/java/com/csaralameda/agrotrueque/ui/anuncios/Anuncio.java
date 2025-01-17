@@ -1,8 +1,11 @@
 package com.csaralameda.agrotrueque.ui.anuncios;
 
 import android.graphics.Bitmap;
+import android.os.Parcelable;
 
-public class Anuncio {
+import java.io.Serializable;
+
+public class Anuncio implements Serializable {
 
     private int idAnuncio;
     private String descripcion;

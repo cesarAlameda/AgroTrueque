@@ -32,6 +32,16 @@
         android:theme="@style/AppTheme"
         tools:targetApi="33">
         <activity
+            android:name=".ui.anuncios.misanuncios.MisAnuncios"
+            android:exported="false" />
+        <activity
+            android:name=".ui.anuncios.misanuncios.Anunciosmios"
+            android:exported="false"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".ui.anuncios.AnuncioDetalles"
+            android:exported="false" />
+        <activity
             android:name=".ui.chat.Chat"
             android:exported="false" />
         <activity

@@ -36,17 +36,16 @@ public class Chat extends AppCompatActivity {
 
 
 
-        // Inicializar vistas
         recyclerView = findViewById(R.id.messagesRecyclerView);
         inputField = findViewById(R.id.inputField);
         sendButton = findViewById(R.id.sendButton);
 
-        // Configurar RecyclerView
         adapter = new MessageAdapter(messages);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        // Configurar listener para enviar mensajes
+
+        // Configurar php para enviar mensajes
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

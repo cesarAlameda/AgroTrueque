@@ -88,4 +88,49 @@ public interface ApiService {
         @GET("select_anuncios.php")
         Call<JsonObject> obtenerAnuncios();
 
+        @FormUrlEncoded
+        @POST("select_anuncioid.php")
+        Call<JsonObject> selectanuncioid(
+                @Field("idAnuncio") int idAnuncio
+
+        );
+
+        @FormUrlEncoded
+        @POST("selectmisanuncios.php")
+        Call<JsonObject> selectmisanuncios(
+                @Field("idUsuario") int idUsuario
+
+        );
+
+        @FormUrlEncoded
+        @POST("deleteanuncio.php")
+        Call<JsonObject> deleteanuncio(
+                @Field("idAnuncio") int idAnuncio
+
+        );
+        @FormUrlEncoded
+        @POST("actualizar_anuncio.php")
+        Call<JsonObject> actualizarAnuncio(
+                @Field("idAnuncio") int idAnuncio,
+                @Field("descripcion") String descripcion,
+                @Field("localizacion") String localizacion,
+                @Field("fotoAnuncio") String fotoAnuncio
+        );
+
+        @FormUrlEncoded
+        @POST("actualizar_token.php")
+        Call<JsonObject> actualizarToken(
+                @Field("idUsuario") int idUsuario,
+                @Field("token") String token
+
+        );
+
+        @FormUrlEncoded
+        @POST("enviarnotificacionnuevochat.php")
+        Call<JsonObject> enviarnotificacionnuevochat(
+                @Field("idUsuario") int idUsuario
+
+        );
+
+
 }

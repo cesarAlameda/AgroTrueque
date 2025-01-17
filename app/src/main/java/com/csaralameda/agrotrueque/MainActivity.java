@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.csaralameda.agrotrueque.DataService.RetrofitClient;
+import com.csaralameda.agrotrueque.Interfaces.ApiService;
 import com.csaralameda.agrotrueque.databinding.ActivityMainBinding;
 import com.csaralameda.agrotrueque.ui.anuncios.AnunciosViewModel;
 import com.csaralameda.agrotrueque.ui.chat.MessaginService;
@@ -14,6 +16,7 @@ import com.csaralameda.agrotrueque.ui.perfil.PerfilViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.JsonObject;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +25,11 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -71,8 +79,9 @@ public class MainActivity extends AppCompatActivity {
                     R.id.navigation_perfil, R.id.navigation_anuncios, R.id.navigation_notifications)
                     .build();
             NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-            NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+         //   NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
             NavigationUI.setupWithNavController(binding.navView, navController);
+
             perfilViewModel = new ViewModelProvider(this).get(PerfilViewModel.class);
             anunciosViewModel = new ViewModelProvider(this).get(AnunciosViewModel.class);
             anunciosViewModel.setUser(user);
@@ -82,10 +91,14 @@ public class MainActivity extends AppCompatActivity {
             navController.navigate(R.id.navigation_perfil);
 
             MessaginService messagingService = new MessaginService();
-            messagingService.getToken();
+            messagingService.getToken(user.getIdUsuario());
+
+
 
 
         }
     }
+
+
 
 }
