@@ -1,4 +1,4 @@
-package com.csaralameda.agrotrueque.ui.anuncios;
+package com.csaralameda.agrotrueque.ui.chat;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -14,12 +14,10 @@ import android.view.ViewGroup;
 
 import com.csaralameda.agrotrueque.R;
 
-import java.util.List;
-
 /**
  * A fragment representing a list of Items.
  */
-public class AnuncioFragment extends Fragment {
+public class chatobjFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -30,13 +28,13 @@ public class AnuncioFragment extends Fragment {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public AnuncioFragment() {
+    public chatobjFragment() {
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static AnuncioFragment newInstance(int columnCount) {
-        AnuncioFragment fragment = new AnuncioFragment();
+    public static chatobjFragment newInstance(int columnCount) {
+        chatobjFragment fragment = new chatobjFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
@@ -55,33 +53,26 @@ public class AnuncioFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_listadeanuncios, container, false);
+        View view = inflater.inflate(R.layout.fragment_chatobj_list, container, false);
 
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            rc = (RecyclerView) view;
-
-
+             rc = (RecyclerView) view;
             if (mColumnCount <= 1) {
                 rc.setLayoutManager(new LinearLayoutManager(context));
-                
             } else {
-
                 rc.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            rc.setAdapter(new MyanuncioRecyclerViewAdapter(Anuncios.listanuncios));
+            rc.setAdapter(new MychatobjRecyclerViewAdapter(ChatsObjs.listachats));
         }
         return view;
     }
-    public void actualizarAnunciosConFiltro(List<Anuncio> anunciosFiltrados) {
 
-        if (rc.getAdapter() != null) {
-            rc.setAdapter(new MyanuncioRecyclerViewAdapter(anunciosFiltrados));
+
+    public void updateVista() {
+        if (rc != null) {
+            rc.getAdapter().notifyDataSetChanged();
         }
-    }
-    public void actualizarAnuncios(){
-        rc.setAdapter(new MyanuncioRecyclerViewAdapter(Anuncios.listanuncios));
-        rc.getAdapter().notifyDataSetChanged();
     }
 }

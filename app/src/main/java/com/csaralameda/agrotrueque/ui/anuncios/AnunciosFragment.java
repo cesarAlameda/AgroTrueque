@@ -11,7 +11,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +40,9 @@ import com.csaralameda.agrotrueque.databinding.FragmentAnunciosBinding;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -48,7 +54,8 @@ public class AnunciosFragment extends Fragment {
     private Button btnCrearAnuncio;
     private AnuncioFragment af;
     private Bitmap bitmap;
-
+    public static List<Anuncio> listanuncios = new ArrayList<>();
+    private List<Anuncio> listaFiltrada = new ArrayList<>();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -71,7 +78,42 @@ public class AnunciosFragment extends Fragment {
         af = (AnuncioFragment) getChildFragmentManager().findFragmentById(R.id.fragmentContainerView);
         Log.d("CARGOANUNCIOS","CARGO ANUNCIOS");
         cargarAnuncios();
+        Spinner spinnerCategorias = binding.spinnerCategorias;
+        String[] categorias = {"Todos", "Vegetales", "Animales", "Piensos", "Maquinaria", "Otros"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, categorias);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCategorias.setAdapter(adapter);
 
+        spinnerCategorias.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String categoriaSeleccionada = categorias[position];
+                filtrarAnunciosPorCategoria(categoriaSeleccionada);
+            }
+
+            private void filtrarAnunciosPorCategoria(String categoriaSeleccionada) {
+                if ("Todos".equals(categoriaSeleccionada)) {
+                    af.actualizarAnuncios();
+                    return;
+                }
+
+                List<Anuncio> anunciosFiltrados = new ArrayList<>();
+                for (Anuncio anuncio : Anuncios.listanuncios) {
+                    if (categoriaSeleccionada.equals(anuncio.getCategoria())) {
+                        anunciosFiltrados.add(anuncio);
+                    }
+                    Log.d("filtro",categoriaSeleccionada.toString()+" "+anuncio.getCategoria());
+
+                }
+
+                af.actualizarAnunciosConFiltro(anunciosFiltrados);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // No hacer nada
+            }
+        });
         return root;
     }
 
@@ -96,11 +138,11 @@ public class AnunciosFragment extends Fragment {
                             String descripcion = anuncioObj.get("descripcion").getAsString();
                             String localizacion = anuncioObj.get("localizacion").getAsString();
                             String hora = anuncioObj.get("hora").getAsString();
-
+                            String categoria=anuncioObj.get("categoria").getAsString();
                             String estado = anuncioObj.get("estado").getAsString();
                             String urlfoto = anuncioObj.get("fotoAnuncio").getAsString();
                             int idUsuario = anuncioObj.get("idUsuario").getAsInt();
-                            cargarfoto(idAnuncio,urlfoto,descripcion,localizacion,hora,estado,idUsuario);
+                            cargarfoto(idAnuncio,urlfoto,descripcion,localizacion,hora,estado,categoria,idUsuario);
 
 
 
@@ -119,24 +161,24 @@ public class AnunciosFragment extends Fragment {
                 }
             }
 
-            private void cargarfoto(int idanuncio, String base64Image, String descripcion, String localizacion, String hora, String estado, int idUsuario) {
+            private void cargarfoto(int idanuncio, String base64Image, String descripcion, String localizacion, String hora, String estado,String categoria, int idUsuario) {
                 try {
                     String base64Data = base64Image.substring(base64Image.indexOf(",") + 1);
                     byte[] decodedString = Base64.decode(base64Data, Base64.DEFAULT);
                     Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
                     if (bitmap != null) {
-                        Anuncio anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, bitmap, idUsuario);
+                        Anuncio anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, bitmap, idUsuario);
                         Anuncios.listanuncios.add(anuncio);
                     } else {
                         Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar);
-                        Anuncio anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, defaultBitmap, idUsuario);
+                        Anuncio anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, defaultBitmap, idUsuario);
                         Anuncios.listanuncios.add(anuncio);
                     }
                 } catch (Exception e) {
                     Log.e("ImagenError", "Error decodificando imagen base64", e);
                     Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar);
-                    Anuncio anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, defaultBitmap, idUsuario);
+                    Anuncio anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, defaultBitmap, idUsuario);
                     Anuncios.listanuncios.add(anuncio);
                 }
             }

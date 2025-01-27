@@ -44,7 +44,7 @@ public class    MyanuncioRecyclerViewAdapter extends RecyclerView.Adapter<Myanun
         holder.tvUbicacionAnuncio.setText(mValues.get(position).getLocalizacion());
         holder.tvTituloAnuncio.setText(mValues.get(position).getDescripcion());
         holder.imgAnuncio.setImageBitmap(mValues.get(position).getFotoAnuncio());
-
+        holder.tvCategoria.setText(mValues.get(position).getCategoria());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -108,15 +108,18 @@ public class    MyanuncioRecyclerViewAdapter extends RecyclerView.Adapter<Myanun
         public final TextView tvTituloAnuncio;
         public final ImageView imgAnuncio;
         public Anuncio mItem;
-
+        public final TextView tvCategoria;
         public ViewHolder(FragmentAnuncioBinding binding) {
             super(binding.getRoot());
             tvUbicacionAnuncio = binding.tvUbicacionAnuncio;
             tvHoraAnuncio = binding.tvHoraAnuncio;
             tvTituloAnuncio = binding.tvTituloAnuncio;
             imgAnuncio = binding.imgAnuncio;
+            tvCategoria = binding.tvCategoria;
         }
 
 
     }
+
+
 }

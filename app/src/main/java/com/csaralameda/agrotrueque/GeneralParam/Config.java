@@ -43,6 +43,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.JsonObject;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -75,7 +79,7 @@ public class Config extends AppCompatActivity {
         LinearLayoutArray=new LinearLayout[NLAYOUT];
 
         LinearLayoutArray[0] = findViewById(R.id.cambiarPassword);
-        LinearLayoutArray[1] = findViewById(R.id.notificaciones);
+        LinearLayoutArray[1] = findViewById(R.id.cambiarPassword);
         LinearLayoutArray[2] = findViewById(R.id.cerrarsesion);
         LinearLayoutArray[3] = findViewById(R.id.eliminarcuenta);
 
@@ -110,7 +114,7 @@ public class Config extends AppCompatActivity {
                                                 builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
                                                     @Override
                                                     public void onClick(DialogInterface dialog, int which) {
-                                                        if(!etPassword.getText().toString().equals(pass)){
+                                                        if(verificarContraseña(etPassword.getText().toString(), pass)){
                                                             Log.d("TEXTOYPASS",etPassword.getText().toString()+" "+pass);
                                                             Toast.makeText(Config.this, "contraseña incorrecta", Toast.LENGTH_SHORT).show();
                                                         }else{
@@ -222,6 +226,27 @@ public class Config extends AppCompatActivity {
                                                         }
 
 
+                                                    }
+
+                                                    private boolean verificarContraseña(String contraseñaIngresada, String contraseñaHasheadaBD) {
+                                                        try {
+                                                            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+
+                                                            byte[] encodedHash = digest.digest(contraseñaIngresada.getBytes(StandardCharsets.UTF_8));
+
+                                                            StringBuilder hexString = new StringBuilder();
+                                                            for (byte b : encodedHash) {
+                                                                String hex = Integer.toHexString(0xff & b);
+                                                                if (hex.length() == 1) hexString.append('0');
+                                                                hexString.append(hex);
+                                                            }
+
+                                                            return hexString.toString().equals(contraseñaHasheadaBD);
+
+                                                        } catch (NoSuchAlgorithmException e) {
+                                                            e.printStackTrace();
+                                                            return false;
+                                                        }
                                                     }
                                                 });
 
@@ -337,25 +362,7 @@ public class Config extends AppCompatActivity {
 
 
 
-                private void cerrarSesiondegoogleogeneral() {
 
-                    mGoogleSignInClient.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Toast.makeText(Config.this, "Sesión cerrada", Toast.LENGTH_SHORT).show();
-
-                                Intent intent = new Intent(Config.this, Logueo.class);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-                                finish();
-                            } else {
-                                Toast.makeText(Config.this, "Error al cerrar sesión", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-
-                }
             });
         }
 
@@ -383,11 +390,46 @@ public class Config extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which) {
                     String pass = input.getText().toString();
                     if(pass.equals("Eliminar Cuenta")){
-                        Toast.makeText(Config.this, "Cuenta eliminada", Toast.LENGTH_SHORT).show();
+                        usuarioDataStore.getUser()
+                                .subscribe(usuario -> {
+                                        deleteusuario(usuario.getIdUsuario());
+
+                                });
                     }else{
                         Toast.makeText(Config.this, "Texto incorrecto", Toast.LENGTH_SHORT).show();
                         dialog.cancel();
                     }
+                }
+
+                private void deleteusuario(int idUsuario) {
+                    Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
+                    ApiService apiService = retrofit.create(ApiService.class);
+
+                    Call<JsonObject> call = apiService.deleteUser(idUsuario);
+                    call.enqueue(new Callback<JsonObject>() {
+                        @Override
+                        public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                JsonObject result = response.body();
+                                if (result.get("status").getAsString().equals("success")) {
+                                    Log.d("DELETE_USER", "Usuario eliminado correctamente");
+                                    // Handle successful deletion
+                                    cerrarSesiondegoogleogeneral();
+
+                                } else {
+                                    Log.d("ERROR", "Error al eliminar usuario: " +
+                                            result.get("message").getAsString());
+                                }
+                            } else {
+                                Log.d("ERROR", "Error en la respuesta del servidor");
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<JsonObject> call, Throwable t) {
+                            Log.d("ERROR", "Error de red: " + t.getMessage());
+                        }
+                    });
                 }
             });
 
@@ -402,6 +444,27 @@ public class Config extends AppCompatActivity {
             dialog.show();
         }
 
+    private void cerrarSesiondegoogleogeneral() {
+
+        mGoogleSignInClient.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(Config.this, "Sesión cerrada", Toast.LENGTH_SHORT).show();
+
+                    Intent intent = new Intent(Config.this, Logueo.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(Config.this, "Error al cerrar sesión", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+    }
 
 
-}
+    }
+
+

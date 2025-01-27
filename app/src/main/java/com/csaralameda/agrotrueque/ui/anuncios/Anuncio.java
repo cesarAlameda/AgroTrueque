@@ -14,16 +14,18 @@ public class Anuncio implements Serializable {
     private String estado;
     private Bitmap fotoAnuncio;
     private int idUsuario;
+    private String categoria;
 
     public Anuncio() {
     }
 
-    public Anuncio(int idAnuncio, String descripcion, String localizacion, String hora, String estado, Bitmap fotoAnuncio, int idUsuario) {
+    public Anuncio(int idAnuncio, String descripcion, String localizacion, String hora, String estado,String categoria, Bitmap fotoAnuncio, int idUsuario) {
         this.idAnuncio = idAnuncio;
         this.descripcion = descripcion;
         this.localizacion = localizacion;
         this.hora = hora;
         this.estado = estado;
+        this.categoria=categoria;
         this.fotoAnuncio = fotoAnuncio;
         this.idUsuario = idUsuario;
     }
@@ -42,6 +44,14 @@ public class Anuncio implements Serializable {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
     }
 
     public String getLocalizacion() {

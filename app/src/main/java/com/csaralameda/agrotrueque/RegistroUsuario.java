@@ -160,7 +160,7 @@ public class RegistroUsuario extends Activity {
         if (fotoUsuario != null) {
             call = apiService.actualizarUser(idUsuario, nombreUsuario, correoUsuario, fotoUsuario);
         } else {
-            call = apiService.actualizarUser(idUsuario, nombreUsuario, correoUsuario, "");
+            call = apiService.actualizarUser(idUsuario, nombreUsuario, correoUsuario, "N");
         }
 
         call.enqueue(new Callback<JsonObject>() {
@@ -175,6 +175,7 @@ public class RegistroUsuario extends Activity {
                         finish();
                     } else {
                         Log.d("ERROR",mensaje);
+                        finish();
                     }
                 } else {
                     Log.d("ERROR","Error en la respuesta del servidor");

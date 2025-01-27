@@ -82,7 +82,8 @@ public interface ApiService {
                 @Field("localizacion") String localizacion,
                 @Field("estado") String estado,
                 @Field("fotoAnuncio") String fotoAnuncio,
-                @Field("idUsuario") int idUsuario
+                @Field("idUsuario") int idUsuario,
+                @Field("categoria") String categoria
         );
 
         @GET("select_anuncios.php")
@@ -114,10 +115,12 @@ public interface ApiService {
                 @Field("idAnuncio") int idAnuncio,
                 @Field("descripcion") String descripcion,
                 @Field("localizacion") String localizacion,
-                @Field("fotoAnuncio") String fotoAnuncio
+                @Field("fotoAnuncio") String fotoAnuncio,
+                @Field("categoria") String categoria
         );
 
         @FormUrlEncoded
+
         @POST("actualizar_token.php")
         Call<JsonObject> actualizarToken(
                 @Field("idUsuario") int idUsuario,
@@ -132,5 +135,45 @@ public interface ApiService {
 
         );
 
+        @FormUrlEncoded
+        @POST("select_user_anuncio.php")
+        Call<JsonObject> selectuseranuncio(
+                @Field("idUsuario") int idUsuario
+
+        );
+
+
+        //CHAT
+        @FormUrlEncoded
+        @POST("send_message.php")
+        Call<JsonObject> sendMessage(
+                @Field("senderId") int senderId,
+                @Field("receiverId") int receiverId,
+                @Field("content") String content
+        );
+
+        @FormUrlEncoded
+        @POST("retrieve_messages.php")
+        Call<JsonObject> retrieveMessages(
+                @Field("userId") int userId,
+                @Field("otherUserId") int otherUserId,
+                @Field("lastMessageId") int lastMessageId
+        );
+
+        @FormUrlEncoded
+        @POST("mark_messages_read.php")
+        Call<JsonObject> markMessagesRead(
+                @Field("userId") int userId,
+                @Field("otherUserId") int otherUserId
+        );
+
+        @FormUrlEncoded
+        @POST("select_chats.php")
+        Call<JsonObject> retrieveChats(@Field("userId") int userId);
+
+
+        @FormUrlEncoded
+        @POST("delete_user.php")
+        Call<JsonObject> deleteUser(@Field("idUsuario") int idUsuario);
 
 }
