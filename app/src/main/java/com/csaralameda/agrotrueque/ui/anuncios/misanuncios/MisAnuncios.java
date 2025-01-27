@@ -1,5 +1,6 @@
 package com.csaralameda.agrotrueque.ui.anuncios.misanuncios;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -42,9 +43,9 @@ public class MisAnuncios extends AppCompatActivity {
             return insets;
         });
 
+
         maf = (miAnuncioFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView2);
         usuarioDataStore = usuarioDataStore.getInstance(this);
-
         cargarMisAnuncios();
 
 
@@ -55,6 +56,7 @@ public class MisAnuncios extends AppCompatActivity {
 
     }
 
+    @SuppressLint("CheckResult")
     private void cargarMisAnuncios() {
 
 
@@ -82,11 +84,12 @@ public class MisAnuncios extends AppCompatActivity {
                                 String descripcion = anuncioObj.get("descripcion").getAsString();
                                 String localizacion = anuncioObj.get("localizacion").getAsString();
                                 String hora = anuncioObj.get("hora").getAsString();
+                                String categoria = anuncioObj.get("categoria").getAsString();
 
                                 String estado = anuncioObj.get("estado").getAsString();
                                 String urlfoto = anuncioObj.get("fotoAnuncio").getAsString();
                                 int idUsuario = anuncioObj.get("idUsuario").getAsInt();
-                                cargarfoto(idAnuncio,urlfoto,descripcion,localizacion,hora,estado,idUsuario);
+                                cargarfoto(idAnuncio,urlfoto,descripcion,localizacion,hora,estado,categoria,idUsuario);
 
 
 
@@ -105,24 +108,24 @@ public class MisAnuncios extends AppCompatActivity {
                     }
                 }
 
-                private void cargarfoto(int idanuncio, String base64Image, String descripcion, String localizacion, String hora, String estado, int idUsuario) {
+                private void cargarfoto(int idanuncio, String base64Image, String descripcion, String localizacion, String hora, String estado,String categoria, int idUsuario) {
                     try {
                         String base64Data = base64Image.substring(base64Image.indexOf(",") + 1);
                         byte[] decodedString = Base64.decode(base64Data, Base64.DEFAULT);
                         Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
                         if (bitmap != null) {
-                            Anuncio anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, bitmap, idUsuario);
+                            Anuncio anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, bitmap, idUsuario);
                             Anuncios.listanuncios.add(anuncio);
                         } else {
                             Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar);
-                            Anuncio anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, defaultBitmap, idUsuario);
+                            Anuncio anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, defaultBitmap, idUsuario);
                             Anuncios.listanuncios.add(anuncio);
                         }
                     } catch (Exception e) {
                         Log.e("ImagenError", "Error decodificando imagen base64", e);
                         Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar);
-                        Anuncio anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, defaultBitmap, idUsuario);
+                        Anuncio anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, defaultBitmap, idUsuario);
                         Anuncios.listanuncios.add(anuncio);
                     }
                 }

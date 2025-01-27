@@ -93,9 +93,7 @@ Logueo extends AppCompatActivity {
         EditText edPass=findViewById(R.id.edPassLog);
         tvPassForget=findViewById(R.id.tvPassForget);
         btnGoogle=findViewById(R.id.googleSignInButton);
-        //DATOS PROVISIONALES:
-        edMail.setText("twitt29@gmail.com");
-        edPass.setText("Monodejungla23");
+
 
 
 

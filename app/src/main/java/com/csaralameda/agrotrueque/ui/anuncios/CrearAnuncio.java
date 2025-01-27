@@ -20,6 +20,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
@@ -45,6 +46,7 @@ import android.content.pm.PackageManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -94,7 +96,8 @@ public class CrearAnuncio extends AppCompatActivity implements OnMapReadyCallbac
     private int idAnuncio;
     private Anuncio anuncio;
     private String localizacion;
-
+    private Spinner spinner;
+    String[] categorias = {"Vegetales", "Animales", "Piensos", "Maquinaria", "Otros"};
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private static final String[]  PERMISSIONS = {
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -131,7 +134,11 @@ public class CrearAnuncio extends AppCompatActivity implements OnMapReadyCallbac
         usuarioDataStore = usuarioDataStore.getInstance(this);
         etDescripcion= findViewById(R.id.etDescripcion);
         guardarAnuncio = findViewById(R.id.guardarAnuncio);
+        spinner = findViewById(R.id.spinner);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categorias);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
+        spinner.setAdapter(adapter);
         ivFotoAnuncio= findViewById(R.id.ivFotoAnuncio);
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -158,7 +165,6 @@ public class CrearAnuncio extends AppCompatActivity implements OnMapReadyCallbac
                 if(editando){
                     //hago update del anuncio
 
-                        Log.d("local",sacarNombreCiudad());
 
                         if(bitmapcambiado){
                             usuarioDataStore.getUser().subscribe(usuario -> {
@@ -198,7 +204,7 @@ public class CrearAnuncio extends AppCompatActivity implements OnMapReadyCallbac
             private void actualizarAnuncio(String desc, String loca, String fotourl) {
                 Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
                 ApiService apiService = retrofit.create(ApiService.class);
-                Call<JsonObject> call = apiService.actualizarAnuncio(idAnuncio, desc, loca, fotourl);
+                Call<JsonObject> call = apiService.actualizarAnuncio(idAnuncio, desc, loca, fotourl, spinner.getSelectedItem().toString());
 
                 call.enqueue(new Callback<JsonObject>() {
                     @Override
@@ -232,7 +238,7 @@ public class CrearAnuncio extends AppCompatActivity implements OnMapReadyCallbac
 
                 int idUsuario = idUser; // Obtén el ID del usuario según tu lógica
 
-                Call<JsonObject> call = apiService.insertarAnuncio(descripcion, localizacion, estado, fotourl, idUsuario);
+                Call<JsonObject> call = apiService.insertarAnuncio(descripcion, localizacion, estado, fotourl, idUsuario,spinner.getSelectedItem().toString());
                 call.enqueue(new Callback<JsonObject>() {
                     @Override
                     public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -364,10 +370,11 @@ public class CrearAnuncio extends AppCompatActivity implements OnMapReadyCallbac
                         localizacion = anuncioObj.get("localizacion").getAsString();
                         String hora = anuncioObj.get("hora").getAsString();
                         String estado = anuncioObj.get("estado").getAsString();
-                        String urlfoto = anuncioObj.get("fotoAnuncio").getAsString();
+                        String categoria = anuncioObj.get("categoria").getAsString();
+                        fotourl = anuncioObj.get("fotoAnuncio").getAsString();
                         int idUsuario = anuncioObj.get("idUsuario").getAsInt();
 
-                        cargarfoto(idAnuncio, urlfoto, descripcion, localizacion, hora, estado, idUsuario);
+                        cargarfoto(idAnuncio, fotourl, descripcion, localizacion, hora, estado,categoria, idUsuario);
                     } else {
                         Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
                     }
@@ -388,7 +395,7 @@ public class CrearAnuncio extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void cargarfoto(int idanuncio, String base64Image, String descripcion, String localizacion,
-                            String hora, String estado, int idUsuario) {
+                            String hora, String estado,String categoria, int idUsuario) {
         try {
             String base64Data = base64Image.substring(base64Image.indexOf(",") + 1);
             byte[] decodedString = Base64.decode(base64Data, Base64.DEFAULT);
@@ -397,10 +404,10 @@ public class CrearAnuncio extends AppCompatActivity implements OnMapReadyCallbac
                 cargarUbicacion(localizacion);
             }
             if (bitmap != null) {
-                anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, bitmap, idUsuario);
+                anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, bitmap, idUsuario);
             } else {
                 Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar);
-                anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, defaultBitmap, idUsuario);
+                anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, defaultBitmap, idUsuario);
             }
 
             ivFotoAnuncio.setImageBitmap(anuncio.getFotoAnuncio());
@@ -412,7 +419,7 @@ public class CrearAnuncio extends AppCompatActivity implements OnMapReadyCallbac
         } catch (Exception e) {
             Log.e("ImagenError", "Error decodificando imagen base64", e);
             Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar);
-            anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, defaultBitmap, idUsuario);
+            anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, defaultBitmap, idUsuario);
         }
 
 

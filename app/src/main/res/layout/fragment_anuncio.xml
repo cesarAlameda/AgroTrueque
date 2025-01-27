@@ -81,6 +81,13 @@
                     tools:text="Hace 1h" />
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/tvCategoria"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Maquinaria"
+                android:textAlignment="viewEnd" />
+
         </LinearLayout>
 
     </LinearLayout>

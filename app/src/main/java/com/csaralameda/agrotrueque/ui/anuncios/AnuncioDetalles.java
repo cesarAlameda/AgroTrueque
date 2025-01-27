@@ -7,12 +7,14 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -61,13 +63,15 @@ public class AnuncioDetalles extends AppCompatActivity implements OnMapReadyCall
     private ImageView ivFotoAnuncio;
     private TextView tvDescripcionContenido;
     private TextView tvHora;
-    private Button btnChat;
+    private ImageButton ibChat;
     private GoogleMap mMap;
     private String localizacion;
     private boolean mapaListo = false;
     private boolean anuncioCargado = false;
     private UsuarioDataStore usuarioDataStore;
-
+    private Usuario u=new Usuario();
+    private TextView textoEtiquetaChat;
+    private Button botonEmail;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,11 +94,31 @@ public class AnuncioDetalles extends AppCompatActivity implements OnMapReadyCall
         mapFragment.getMapAsync(this);
 
         cargarAnuncio(idanuncio);
+
+
         ivFotoAnuncio = findViewById(R.id.ivFotoAnuncio);
         tvDescripcionContenido = findViewById(R.id.tvDescripcionContenido);
         tvHora = findViewById(R.id.tvHora);
-        btnChat = findViewById(R.id.btnChat);
-        btnChat.setOnClickListener(new View.OnClickListener() {
+        ibChat = findViewById(R.id.ibChat);
+        textoEtiquetaChat = findViewById(R.id.textoEtiquetaChat);
+        botonEmail = findViewById(R.id.botonEmail);
+
+
+        botonEmail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                emailIntent.setType("text/plain");
+                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{u.getCorreoUsuario()});
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Anuncio Agrotrueque");
+                emailIntent.putExtra(Intent.EXTRA_TEXT, "Te contacto por el anuncio: " + anuncio.getDescripcion());
+
+                startActivity(Intent.createChooser(emailIntent, "Enviar por correo"));
+            }
+        });
+
+        ibChat.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("CheckResult")
             @Override
             public void onClick(View v) {
@@ -112,6 +136,7 @@ public class AnuncioDetalles extends AppCompatActivity implements OnMapReadyCall
                         mandarnotificacion();
 
                         Intent intent = new Intent(AnuncioDetalles.this, Chat.class);
+                        intent.putExtra("OTROUSER",anuncio.getIdUsuario());
                         startActivity(intent);
 
 
@@ -119,21 +144,7 @@ public class AnuncioDetalles extends AppCompatActivity implements OnMapReadyCall
 
 
                 });
-
-
-
-
             }
-
-
-
-
-
-
-
-
-
-
             private void mandarnotificacion() {
                 Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
                 ApiService apiService = retrofit.create(ApiService.class);
@@ -161,6 +172,62 @@ public class AnuncioDetalles extends AppCompatActivity implements OnMapReadyCall
         });
     }
 
+    private void cargarUsuarioAnuncio(int idUsuario) {
+        Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
+        ApiService apiService = retrofit.create(ApiService.class);
+
+        Call<JsonObject> call = apiService.selectuseranuncio(idUsuario);
+
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d("RESPUESTA_BODY", response.body().toString());
+                    String status = response.body().get("status").getAsString();
+                    String mensaje = response.body().get("message").getAsString();
+
+                    if ("success".equals(status)) {
+                        JsonObject responseBody = response.body();
+                        JsonObject anuncioObj = responseBody.getAsJsonObject("user");
+
+
+                        String nombreUsuario = anuncioObj.get("nombreUsuario").getAsString();
+                        String correoUsuario = anuncioObj.get("correoUsuario").getAsString();
+                        String token = anuncioObj.get("Token").getAsString();
+                        int idUsuario = anuncioObj.get("idUsuario").getAsInt();
+
+                        u.setIdUsuario(idUsuario);
+                        u.setNombreUsuario(nombreUsuario);
+                        u.setCorreoUsuario(correoUsuario);
+                        textoEtiquetaChat.setText(u.getNombreUsuario());
+
+
+
+                    } else {
+                        Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(),
+                            "Error en la respuesta del servidor",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Toast.makeText(getApplicationContext(),
+                        "Error en la conexión: " + t.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+
+
+
+
+    }
+
     private void cargarAnuncio(int idanuncio) {
         Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
         ApiService apiService = retrofit.create(ApiService.class);
@@ -184,10 +251,11 @@ public class AnuncioDetalles extends AppCompatActivity implements OnMapReadyCall
                         localizacion = anuncioObj.get("localizacion").getAsString();
                         String hora = anuncioObj.get("hora").getAsString();
                         String estado = anuncioObj.get("estado").getAsString();
+                        String categoria= anuncioObj.get("categoria").getAsString();
                         String urlfoto = anuncioObj.get("fotoAnuncio").getAsString();
                         int idUsuario = anuncioObj.get("idUsuario").getAsInt();
-
-                        cargarfoto(idAnuncio, urlfoto, descripcion, localizacion, hora, estado, idUsuario);
+                        cargarUsuarioAnuncio(idUsuario);
+                        cargarfoto(idAnuncio, urlfoto, descripcion, localizacion, hora, estado,categoria, idUsuario);
                     } else {
                         Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
                     }
@@ -208,17 +276,17 @@ public class AnuncioDetalles extends AppCompatActivity implements OnMapReadyCall
     }
 
     private void cargarfoto(int idanuncio, String base64Image, String descripcion, String localizacion,
-                            String hora, String estado, int idUsuario) {
+                            String hora, String estado, String categoria, int idUsuario) {
         try {
             String base64Data = base64Image.substring(base64Image.indexOf(",") + 1);
             byte[] decodedString = Base64.decode(base64Data, Base64.DEFAULT);
             Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
             if (bitmap != null) {
-                anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, bitmap, idUsuario);
+                anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, bitmap, idUsuario);
             } else {
                 Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar);
-                anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, defaultBitmap, idUsuario);
+                anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, defaultBitmap, idUsuario);
             }
 
             ivFotoAnuncio.setImageBitmap(anuncio.getFotoAnuncio());
@@ -231,7 +299,7 @@ public class AnuncioDetalles extends AppCompatActivity implements OnMapReadyCall
         } catch (Exception e) {
             Log.e("ImagenError", "Error decodificando imagen base64", e);
             Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar);
-            anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, defaultBitmap, idUsuario);
+            anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, defaultBitmap, idUsuario);
         }
     }
 

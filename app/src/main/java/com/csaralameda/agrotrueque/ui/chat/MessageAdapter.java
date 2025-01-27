@@ -1,5 +1,6 @@
 package com.csaralameda.agrotrueque.ui.chat;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,8 +8,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.csaralameda.agrotrueque.R;
-import com.csaralameda.agrotrueque.UsuarioDataStore;
-import com.google.firebase.auth.FirebaseAuth;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
@@ -18,14 +17,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     private static final int VIEW_TYPE_RECEIVED = 2;
     private List<Message> messages;
     private int currentUserId;
-    private UsuarioDataStore usuarioDataStore;
 
-    public MessageAdapter(List<Message> messages) {
+    public MessageAdapter(List<Message> messages, int currentUserId) {
         this.messages = messages;
-        this.currentUserId = 2 ;
+        this.currentUserId = currentUserId;
     }
-
-
 
     @NonNull
     @Override
@@ -57,16 +53,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public int getItemViewType(int position) {
         Message message = messages.get(position);
-        if (message.getSenderId().equals(currentUserId)) {
-            return VIEW_TYPE_SENT;
-        } else {
-            return VIEW_TYPE_RECEIVED;
-        }
+        return message.getSenderId() == currentUserId ? VIEW_TYPE_SENT : VIEW_TYPE_RECEIVED;
     }
 
-    public void updateMessages(List<Message> newMessages) {
-        this.messages = newMessages;
-        notifyDataSetChanged();
+    public void addMessage(Message message) {
+        messages.add(message);
+        notifyItemInserted(messages.size() - 1);
     }
 
     static class MessageViewHolder extends RecyclerView.ViewHolder {
