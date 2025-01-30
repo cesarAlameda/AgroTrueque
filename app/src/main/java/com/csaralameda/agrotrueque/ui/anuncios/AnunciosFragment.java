@@ -162,6 +162,7 @@ public class AnunciosFragment extends Fragment {
             }
 
             private void cargarfoto(int idanuncio, String base64Image, String descripcion, String localizacion, String hora, String estado,String categoria, int idUsuario) {
+
                 try {
                     String base64Data = base64Image.substring(base64Image.indexOf(",") + 1);
                     byte[] decodedString = Base64.decode(base64Data, Base64.DEFAULT);

@@ -18,14 +18,18 @@ import android.widget.Toast;
 
 import com.csaralameda.agrotrueque.DataService.RetrofitClient;
 import com.csaralameda.agrotrueque.Interfaces.ApiService;
+import com.csaralameda.agrotrueque.R;
 import com.csaralameda.agrotrueque.databinding.ActivityCrearAnuncioBinding;
 import com.csaralameda.agrotrueque.ui.anuncios.Anuncio;
 import com.csaralameda.agrotrueque.databinding.FragmentMianuncioBinding;
+import com.csaralameda.agrotrueque.ui.anuncios.Anuncios;
 import com.csaralameda.agrotrueque.ui.anuncios.CrearAnuncio;
 import com.google.gson.JsonObject;
 
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -106,10 +110,13 @@ public class MymiAnuncioRecyclerViewAdapter extends RecyclerView.Adapter<MymiAnu
                                             String mensaje = response.body().get("message").getAsString();
 
                                             if ("success".equals(status)) {
-
-                                                Toast.makeText(v.getContext(), "Anuncio borrado correctamente", Toast.LENGTH_SHORT).show();
-
-
+                                                int position = holder.getAdapterPosition();
+                                                if (position != RecyclerView.NO_POSITION) {
+                                                    mValues.remove(position);
+                                                    notifyItemRemoved(position);
+                                                    notifyItemRangeChanged(position, mValues.size());
+                                                }
+                                                Toast.makeText(v.getContext(), "Anuncio eliminado", Toast.LENGTH_SHORT).show();
                                             } else {
                                                 Toast.makeText(v.getContext(), mensaje, Toast.LENGTH_SHORT).show();
                                             }

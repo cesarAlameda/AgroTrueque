@@ -20,7 +20,6 @@ public class Message {
         this.read = read;
     }
 
-    // Getters and Setters
     public int getMessageId() { return messageId; }
     public void setMessageId(int messageId) { this.messageId = messageId; }
     public int getSenderId() { return senderId; }

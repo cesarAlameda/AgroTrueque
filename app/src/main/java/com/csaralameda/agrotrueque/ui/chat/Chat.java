@@ -1,17 +1,25 @@
 package com.csaralameda.agrotrueque.ui.chat;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.csaralameda.agrotrueque.DataService.RetrofitClient;
 import com.csaralameda.agrotrueque.Interfaces.ApiService;
 import com.csaralameda.agrotrueque.R;
@@ -44,6 +52,7 @@ public class Chat extends AppCompatActivity {
     private Handler handler = new Handler();
     private Runnable messageRunnable;
     private TextView tvNombreuser;
+    private ImageView imgview;
     private int currentUserId;
     private int otherUserId; // ID of the user you're chatting with
     private Usuario u=new Usuario();
@@ -61,8 +70,7 @@ public class Chat extends AppCompatActivity {
         otherUserId = getIntent().getIntExtra("OTROUSER", -1);
         cargarUsuarioAnuncio(otherUserId);
         tvNombreuser = findViewById(R.id.userNameTextView);
-
-
+        imgview= findViewById(R.id.ivUsuario);
 
         // Get current user
         usuarioDataStore.getUser().subscribe(usuario -> {
@@ -112,24 +120,50 @@ public class Chat extends AppCompatActivity {
                         JsonObject responseBody = response.body();
                         JsonObject anuncioObj = responseBody.getAsJsonObject("user");
 
-
                         String nombreUsuario = anuncioObj.get("nombreUsuario").getAsString();
                         String correoUsuario = anuncioObj.get("correoUsuario").getAsString();
+                        String fotoruluser = anuncioObj.get("fotoUsuario").getAsString();
                         String token = anuncioObj.get("Token").getAsString();
                         int idUsuario = anuncioObj.get("idUsuario").getAsInt();
+
+                        if (fotoruluser != null && !fotoruluser.isEmpty()) {
+                            Glide.with(Chat.this)  // Usar Chat.this en lugar de getApplicationContext()
+                                    .load(fotoruluser)
+                                    .placeholder(R.drawable.perfil)
+                                    .error(R.drawable.perfil)
+                                    .into(new CustomTarget<Drawable>() {
+                                        @Override
+                                        public void onResourceReady(@NonNull Drawable drawable,
+                                                                    @Nullable Transition<? super Drawable> transition) {
+                                            imgview.setImageDrawable(drawable);
+                                            Log.d("IMAGE_LOADING", "Image loaded successfully");
+                                        }
+
+                                        @Override
+                                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                                            super.onLoadFailed(errorDrawable);
+                                            Log.e("IMAGE_LOADING", "Failed to load image");
+                                        }
+
+                                        @Override
+                                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                                            imgview.setImageDrawable(placeholder);
+                                        }
+                                    });
+                        } else {
+                            Log.e("IMAGE_LOADING", "Image URL is null or empty");
+                        }
 
                         u.setIdUsuario(idUsuario);
                         u.setNombreUsuario(nombreUsuario);
                         u.setCorreoUsuario(correoUsuario);
                         tvNombreuser.setText(u.getNombreUsuario());
 
-
-
                     } else {
-                        Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Chat.this, mensaje, Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(getApplicationContext(),
+                    Toast.makeText(Chat.this,
                             "Error en la respuesta del servidor",
                             Toast.LENGTH_SHORT).show();
                 }
@@ -137,17 +171,11 @@ public class Chat extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
-                Toast.makeText(getApplicationContext(),
+                Toast.makeText(Chat.this,
                         "Error en la conexión: " + t.getMessage(),
                         Toast.LENGTH_SHORT).show();
             }
         });
-
-
-
-
-
-
     }
     private void sendMessage(int senderId, int receiverId, String content) {
         Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");

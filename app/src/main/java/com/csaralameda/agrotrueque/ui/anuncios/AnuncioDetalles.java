@@ -275,21 +275,36 @@ public class AnuncioDetalles extends AppCompatActivity implements OnMapReadyCall
         });
     }
 
-    private void cargarfoto(int idanuncio, String base64Image, String descripcion, String localizacion,
+    private void cargarfoto(int idanuncio, String imageUrl, String descripcion, String localizacion,
                             String hora, String estado, String categoria, int idUsuario) {
         try {
-            String base64Data = base64Image.substring(base64Image.indexOf(",") + 1);
-            byte[] decodedString = Base64.decode(base64Data, Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            this.anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, categoria, null, idUsuario);
 
-            if (bitmap != null) {
-                anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, bitmap, idUsuario);
-            } else {
-                Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar);
-                anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, defaultBitmap, idUsuario);
-            }
+            Glide.with(getApplicationContext())
+                    .asBitmap()
+                    .load(imageUrl)
+                    .error(R.drawable.avatar) // Imagen por defecto si falla la carga
+                    .into(new CustomTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            anuncio.setFotoAnuncio(resource);
+                            ivFotoAnuncio.setImageBitmap(resource);
 
-            ivFotoAnuncio.setImageBitmap(anuncio.getFotoAnuncio());
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                        }
+
+                        @Override
+                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                            super.onLoadFailed(errorDrawable);
+                            Bitmap defaultBitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.avatar);
+                            anuncio.setFotoAnuncio(defaultBitmap);
+                            ivFotoAnuncio.setImageBitmap(defaultBitmap);
+                        }
+                    });
+
             tvDescripcionContenido.setText(descripcion);
             tvHora.setText(gethoraTiempo(hora));
 
@@ -297,11 +312,13 @@ public class AnuncioDetalles extends AppCompatActivity implements OnMapReadyCall
             actualizarMapa();
 
         } catch (Exception e) {
-            Log.e("ImagenError", "Error decodificando imagen base64", e);
-            Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar);
-            anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, defaultBitmap, idUsuario);
+            Log.e("ImagenError", "Error cargando imagen desde URL", e);
+            Bitmap defaultBitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.avatar);
+            Anuncio anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, categoria, defaultBitmap, idUsuario);
+            ivFotoAnuncio.setImageBitmap(defaultBitmap);
         }
     }
+
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
@@ -311,8 +328,16 @@ public class AnuncioDetalles extends AppCompatActivity implements OnMapReadyCall
     }
 
     private void actualizarMapa() {
+        Log.d("ACTUALIZO_MAPA", "ACTUALIZO EL MAPA");
+        Log.d("ACTUALIZO_MAPA", "mapaListo: " + mapaListo);
+        Log.d("ACTUALIZO_MAPA", "anuncioCargado: " + anuncioCargado);
+        Log.d("ACTUALIZO_MAPA", "anuncio: " + (anuncio != null ? anuncio.toString() : "null"));
+        Log.d("ACTUALIZO_MAPA", "localizacion: " + (anuncio != null ? anuncio.getLocalizacion() : "null"));
+
         if (mapaListo && anuncioCargado && anuncio != null && anuncio.getLocalizacion() != null) {
             showLocationOnMap(anuncio.getLocalizacion());
+        } else {
+            Log.d("ACTUALIZO_MAPA", "No se cumplen las condiciones para actualizar el mapa");
         }
     }
 
