@@ -1,5 +1,6 @@
 package com.csaralameda.agrotrueque.ui.perfil;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 
 import android.net.Uri;
@@ -22,6 +23,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.csaralameda.agrotrueque.RegistroUsuario;
 import com.csaralameda.agrotrueque.Usuario;
+import com.csaralameda.agrotrueque.UsuarioDataStore;
 import com.csaralameda.agrotrueque.databinding.FragmentPerfilBinding;
 import com.csaralameda.agrotrueque.GeneralParam.*;
 import com.csaralameda.agrotrueque.ui.anuncios.misanuncios.MisAnuncios;
@@ -36,12 +38,15 @@ public class PerfilFragment extends Fragment {
     private static final int NPARAMUSARIO = 5;
     private static final int NLAYOUT = 4;
     private ImageView imUser;
+    private UsuarioDataStore usuarioDataStore;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
 
         perfilViewModel = new ViewModelProvider(requireActivity()).get(PerfilViewModel.class);
+        usuarioDataStore = usuarioDataStore.getInstance(getContext());
 
         binding = FragmentPerfilBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -49,7 +54,6 @@ public class PerfilFragment extends Fragment {
         Usuario user = perfilViewModel.getUser();
         if (user != null) {
             imUser = binding.imUser;
-            imUser.setImageBitmap(user.getFotoUsuario());
             TextViewArray = new TextView[NPARAMUSARIO];
             LinearLayoutArray=new LinearLayout[NLAYOUT];
             LinearLayout linear2=binding.linearLayout2;
@@ -58,7 +62,6 @@ public class PerfilFragment extends Fragment {
                 public void onClick(View v) {
                     Intent intent = new Intent(v.getContext(), MisAnuncios.class);
                     startActivity(intent);
-
 
                 }
             });
@@ -124,24 +127,38 @@ public class PerfilFragment extends Fragment {
             }
             TextViewArray[0] = binding.tvNombreuser;
             TextViewArray[1] = binding.tvCorreo;
-            /**
-            TextViewArray[2] = binding.tvNtrueques;
-            TextViewArray[3] = binding.tvValoracion;
-            TextViewArray[4] = binding.tvNanuncios;**/
+            usuarioDataStore.getUser()
+                    .subscribe(usuario -> {
+                        getActivity().runOnUiThread(()->{
+                            TextViewArray[0].setText(usuario.getNombreUsuario());
+                            TextViewArray[1].setText(usuario.getCorreoUsuario());
+                            imUser.setImageBitmap(usuario.getFotoUsuario());
+                        });
 
-            TextViewArray[0].setText(user.getNombreUsuario());
-            TextViewArray[1].setText(user.getCorreoUsuario());
-            /**
-            TextViewArray[2].setText(String.valueOf(user.getnIntercambios()));
-            TextViewArray[3].setText("   " + user.getValoracion() + "⭐");
-            TextViewArray[4].setText(String.valueOf(user.getnAnuncios()));**/
+                        Log.d("USER", usuario.getNombreUsuario());
+                    });
         }
 
         return root;
     }
 
+    @SuppressLint("CheckResult")
+    @Override
+    public void onResume() {
+        usuarioDataStore.getUser()
+                .subscribe(usuario -> {
+                    getActivity().runOnUiThread(()->{
+                        TextViewArray[0].setText(usuario.getNombreUsuario());
+                        TextViewArray[1].setText(usuario.getCorreoUsuario());
+                        imUser.setImageBitmap(usuario.getFotoUsuario());
+                    });
+
+                    Log.d("USER", usuario.getNombreUsuario());
+                });
 
 
+                    super.onResume();
+    }
 
     @Override
     public void onDestroyView() {

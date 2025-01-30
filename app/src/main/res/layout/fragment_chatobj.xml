@@ -26,14 +26,14 @@
         <!-- Nombre del usuario -->
         <TextView
             android:id="@+id/nombre_usuario"
-            android:layout_width="wrap_content"
+            android:layout_width="169dp"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            android:text="Nombre del usuario"
+            android:ellipsize="end"
             android:maxLines="1"
-            android:ellipsize="end" />
+            android:text="Nombre del usuario"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <!-- Último mensaje -->
         <TextView

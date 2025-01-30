@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.csaralameda.agrotrueque.DataService.RetrofitClient;
 import com.csaralameda.agrotrueque.Interfaces.ApiService;
 import com.csaralameda.agrotrueque.UsuarioDataStore;
@@ -97,6 +98,7 @@ public class CrearAnuncio extends AppCompatActivity implements OnMapReadyCallbac
     private Anuncio anuncio;
     private String localizacion;
     private Spinner spinner;
+    private TextView tvCargaranuncio;
     String[] categorias = {"Vegetales", "Animales", "Piensos", "Maquinaria", "Otros"};
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private static final String[]  PERMISSIONS = {
@@ -130,7 +132,7 @@ public class CrearAnuncio extends AppCompatActivity implements OnMapReadyCallbac
             initializeMap();
         }
 
-
+        tvCargaranuncio= findViewById(R.id.tvCargaranuncio);
         usuarioDataStore = usuarioDataStore.getInstance(this);
         etDescripcion= findViewById(R.id.etDescripcion);
         guardarAnuncio = findViewById(R.id.guardarAnuncio);
@@ -147,6 +149,7 @@ public class CrearAnuncio extends AppCompatActivity implements OnMapReadyCallbac
         horaactual = String.format("%02d:%02d:%02d", hour, minute, second);
         if(editando){
             guardarAnuncio.setText("Guardar Cambios");
+            tvCargaranuncio.setText("Editar Anuncio");
             cargaranuncio(idAnuncio);
 
         }
@@ -172,6 +175,7 @@ public class CrearAnuncio extends AppCompatActivity implements OnMapReadyCallbac
                             });
                         }else{
                             sacarNombreCiudad();
+                            Log.d("fotourl",fotourl);
                             actualizarAnuncio(etDescripcion.getText().toString(), sacarNombreCiudad(), fotourl);
                         }
 
@@ -276,7 +280,7 @@ public class CrearAnuncio extends AppCompatActivity implements OnMapReadyCallbac
 
                 MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
 
-                Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
+                Retrofit retrofit = RetrofitClient.getClient("silver-goose-817541.hostingersite.com/photos");
                 ApiService apiService = retrofit.create(ApiService.class);
 
                 Call<JsonObject> call = apiService.subirfoto(body);
@@ -394,37 +398,27 @@ public class CrearAnuncio extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-    private void cargarfoto(int idanuncio, String base64Image, String descripcion, String localizacion,
-                            String hora, String estado,String categoria, int idUsuario) {
+    private void cargarfoto(int idanuncio, String imageUrl, String descripcion, String localizacion,
+                            String hora, String estado, String categoria, int idUsuario) {
         try {
-            String base64Data = base64Image.substring(base64Image.indexOf(",") + 1);
-            byte[] decodedString = Base64.decode(base64Data, Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            if (localizacion!=null) {
+            if (localizacion != null) {
                 cargarUbicacion(localizacion);
             }
-            if (bitmap != null) {
-                anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, bitmap, idUsuario);
-            } else {
-                Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar);
-                anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, defaultBitmap, idUsuario);
-            }
 
-            ivFotoAnuncio.setImageBitmap(anuncio.getFotoAnuncio());
+            anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado, categoria, null, idUsuario);
+
+            Glide.with(this)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.avatar)
+                    .error(R.drawable.avatar)
+                    .into(ivFotoAnuncio);
+
             etDescripcion.setText(descripcion);
-
-
-
-
         } catch (Exception e) {
-            Log.e("ImagenError", "Error decodificando imagen base64", e);
-            Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar);
-            anuncio = new Anuncio(idanuncio, descripcion, localizacion, hora, estado,categoria, defaultBitmap, idUsuario);
+            Log.e("ImagenError", "Error cargando imagen con Glide", e);
+            ivFotoAnuncio.setImageResource(R.drawable.avatar);
         }
-
-
-
-}
+    }
 
     private void verificarPermisosCamaraGaleria() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

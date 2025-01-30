@@ -17,17 +17,16 @@
         android:elevation="4dp"
         tools:ignore="MissingConstraints">
 
-        <ImageView
-            android:id="@+id/profileImageView"
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/ivUsuario"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_margin="8dp"
             android:padding="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:srcCompat="@drawable/ic_userplaceholder"
-            app:tint="@android:color/white"/>
+            app:srcCompat="@drawable/ic_userplaceholder" />
 
         <TextView
             android:id="@+id/userNameTextView"
@@ -38,9 +37,9 @@
             android:textColor="@android:color/white"
             android:textSize="18sp"
             android:fontFamily="sans-serif-medium"
-            app:layout_constraintStart_toEndOf="@+id/profileImageView"
-            app:layout_constraintTop_toTopOf="@+id/profileImageView"
-            app:layout_constraintBottom_toBottomOf="@+id/profileImageView"
+            app:layout_constraintStart_toEndOf="@+id/ivUsuario"
+            app:layout_constraintTop_toTopOf="@+id/ivUsuario"
+            app:layout_constraintBottom_toBottomOf="@+id/ivUsuario"
             app:layout_constraintEnd_toEndOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

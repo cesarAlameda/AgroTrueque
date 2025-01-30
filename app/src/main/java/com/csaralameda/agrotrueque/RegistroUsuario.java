@@ -111,6 +111,7 @@ public class RegistroUsuario extends Activity {
         btnRegistro.setOnClickListener(v -> {
 
             if (modoEditar) {
+
                 usuarioDataStore = usuarioDataStore.getInstance(this);
 
                 usuarioDataStore.getUser().subscribe(usuario -> {
@@ -119,11 +120,19 @@ public class RegistroUsuario extends Activity {
                     Log.d("bitmap",bitmapcambiado+" ");
                     if (bitmapcambiado) {
                         subirfoto(bitmap);
-
                     } else {
                         actualizarUsuario(usuario.getIdUsuario(), nombreUsuario, correoUsuario, null);
                     }
+
+                    usuario.setNombreUsuario(nombreUsuario);
+                    usuario.setCorreoUsuario(correoUsuario);
+                    usuario.setFotoUsuario(bitmap);
+                    usuarioDataStore.guardarUsuario(usuario);
+
+                    finish();
                 });
+
+
             }else{
                 if (validarCampos()) {
 
@@ -159,10 +168,17 @@ public class RegistroUsuario extends Activity {
         Call<JsonObject> call;
         if (fotoUsuario != null) {
             call = apiService.actualizarUser(idUsuario, nombreUsuario, correoUsuario, fotoUsuario);
-        } else {
-            call = apiService.actualizarUser(idUsuario, nombreUsuario, correoUsuario, "N");
-        }
 
+        } else {
+            call = apiService.actualizarUser(idUsuario, nombreUsuario, correoUsuario, null);
+
+        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(RegistroUsuario.this, "Usuario Actualizado", Toast.LENGTH_SHORT).show();
+            }
+        });
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -171,7 +187,7 @@ public class RegistroUsuario extends Activity {
                     String mensaje = response.body().get("message").getAsString();
 
                     if ("success".equals(status)) {
-                        Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
+
                         finish();
                     } else {
                         Log.d("ERROR",mensaje);
@@ -179,7 +195,9 @@ public class RegistroUsuario extends Activity {
                     }
                 } else {
                     Log.d("ERROR","Error en la respuesta del servidor");
+                    finish();
                 }
+
             }
 
             @Override
@@ -223,6 +241,7 @@ public class RegistroUsuario extends Activity {
 
 
             if(usuario.getFotoUsuario()!=null){
+                bitmap=usuario.getFotoUsuario();
                 imgviewregistro.setImageBitmap(usuario.getFotoUsuario());
             }
 
@@ -412,16 +431,11 @@ public class RegistroUsuario extends Activity {
     }
 
     private void subirfoto(Bitmap miBitmap) {
-
         File file = bitmapToFile(getApplicationContext(), miBitmap, "foto_" + System.currentTimeMillis() + ".png");
-
-
         RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-
-
         MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
 
-        Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/");
+        Retrofit retrofit = RetrofitClient.getClient("https://silver-goose-817541.hostingersite.com/"); // Remove /photos/
         ApiService apiService = retrofit.create(ApiService.class);
 
         Call<JsonObject> call = apiService.subirfoto(body);
@@ -433,50 +447,54 @@ public class RegistroUsuario extends Activity {
                     Log.d("RESPUESTA_BODY", response.body().toString());
 
                     try {
-                        String status = response.body().get("success").getAsBoolean() ? "success" : "error";
-                        String mensaje = response.body().get("url").getAsString();
+                        if (response.body().has("success") && response.body().has("url")) {
+                            String status = response.body().get("success").getAsBoolean() ? "success" : "error";
+                            String mensaje = response.body().get("url").getAsString();
 
-
-                        if ("success".equals(status)) {
-                            // Handle successful upload
-                            fotourl=mensaje;
-                            //SUBO LA FOTO E INSERTO AL USUARIO
-                            if(modoEditar){
-                                usuarioDataStore.getUser().subscribe(usuario -> {
-                                    String nombreUsuario = EditTextArray[0].getText().toString();
-                                    String correoUsuario = EditTextArray[1].getText().toString();
-                                    Log.d("hola",usuario.getIdUsuario()+ nombreUsuario+ correoUsuario+ fotourl);
-                                    actualizarUsuario(usuario.getIdUsuario(), nombreUsuario, correoUsuario, fotourl);
-
-                                });
-
-
-                            }else{
-                                insertarUsuario();
+                            if ("success".equals(status)) {
+                                fotourl = mensaje;
+                                if (modoEditar) {
+                                    usuarioDataStore.getUser().subscribe(usuario -> {
+                                        String nombreUsuario = EditTextArray[0].getText().toString();
+                                        String correoUsuario = EditTextArray[1].getText().toString();
+                                        Log.d("hola", usuario.getIdUsuario() + nombreUsuario + correoUsuario + fotourl);
+                                        actualizarUsuario(usuario.getIdUsuario(), nombreUsuario, correoUsuario, fotourl);
+                                    });
+                                } else {
+                                    // Add log before inserting user
+                                    Log.d("FOTO_URL", "URL before insert: " + fotourl);
+                                    insertarUsuario();
+                                }
+                            } else {
+                                Log.e("SUBIRFOTO", "Error status: " + mensaje);
+                                Toast.makeText(getApplicationContext(), "Error al subir la foto: " + mensaje, Toast.LENGTH_SHORT).show();
                             }
-
-                            Toast.makeText(getApplicationContext(), "Foto subida exitosamente: " + mensaje, Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(getApplicationContext(), "Error: " + mensaje, Toast.LENGTH_SHORT).show();
+                            Log.e("SUBIRFOTO", "Response missing required fields");
+                            Toast.makeText(getApplicationContext(), "Error: Respuesta del servidor incompleta", Toast.LENGTH_SHORT).show();
                         }
                     } catch (Exception e) {
                         Log.e("SUBIRFOTO", "Error parsing response", e);
-                        Toast.makeText(getApplicationContext(), "Error parseando respuesta", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Error procesando respuesta del servidor", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(getApplicationContext(), "Error en la respuesta del servidor", Toast.LENGTH_SHORT).show();
-                    Log.d("SUBIRFOTO", "error servidor");
+                    try {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
+                        Log.e("SUBIRFOTO", "Server error: " + errorBody);
+                        Toast.makeText(getApplicationContext(), "Error en el servidor: " + errorBody, Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
+                        Log.e("SUBIRFOTO", "Error reading error response", e);
+                        Toast.makeText(getApplicationContext(), "Error en la respuesta del servidor", Toast.LENGTH_SHORT).show();
+                    }
                 }
-
             }
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.e("SUBIRFOTO", "Network error: " + t.getMessage(), t);
                 Toast.makeText(getApplicationContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.e("ERROR", "Error: " + t.getMessage());
             }
         });
-
     }
     public static File bitmapToFile(Context context, Bitmap bitmap, String fileName) {
         File file = new File(context.getExternalFilesDir(null), fileName);

@@ -1,6 +1,7 @@
 package com.csaralameda.agrotrueque.ui.notifications;
 
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,10 +10,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.csaralameda.agrotrueque.DataService.RetrofitClient;
 import com.csaralameda.agrotrueque.Interfaces.ApiService;
 import com.csaralameda.agrotrueque.R;
@@ -76,7 +81,7 @@ public class NotificationsFragment extends Fragment {
                         if (result.get("status").getAsString().equals("success")) {
                             JsonArray chatsArray = result.getAsJsonArray("chats");
                             Log.d("CARGO_CHATS","CARGANDO LOS CHATS");
-                            ChatsObjs.listachats.clear(); // Limpia la lista antes de agregar nuevos datos
+                            ChatsObjs.listachats.clear();
 
                             for (int i = 0; i < chatsArray.size(); i++) {
                                 JsonObject chatObject = chatsArray.get(i).getAsJsonObject();
@@ -86,13 +91,25 @@ public class NotificationsFragment extends Fragment {
                                 String userPhotoUrl = chatObject.get("userPhoto").getAsString().trim();
                                 String ultimoMensaje = chatObject.get("lastMessage").getAsString();
                                 String ultimoMensajeHora = chatObject.get("lastMessageTimestamp").getAsString();
-
-                                // Descargar la foto del usuario (si es necesario, puedes omitir este paso)
+                                Log.d("fotourl", userPhotoUrl);
                                 Bitmap fotoUser = null;
+                                Glide.with(getContext())
+                                        .asBitmap()
+                                        .load(userPhotoUrl)
+                                        .into(new CustomTarget<Bitmap>() {
+                                            @Override
+                                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                                ChatObj chat = new ChatObj(idUsuario, nombreUser, resource, ultimoMensaje, ultimoMensajeHora);
+                                                ChatsObjs.listachats.add(chat);
+                                                cho.updateVista();
+                                            }
 
-                                // Crear un objeto ChatObj y añadirlo a la lista
-                                ChatObj chat = new ChatObj(idUsuario, nombreUser, fotoUser, ultimoMensaje, ultimoMensajeHora);
-                                ChatsObjs.listachats.add(chat);
+                                            @Override
+                                            public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                                            }
+                                        });
+
                             }
 
                                 cho.updateVista();

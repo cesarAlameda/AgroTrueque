@@ -53,7 +53,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class Config extends AppCompatActivity {
-    private static final int NLAYOUT = 4;
+    private static final int NLAYOUT = 3;
     private LinearLayout[] LinearLayoutArray;
     private GoogleSignInClient mGoogleSignInClient;
     private UsuarioDataStore usuarioDataStore;
@@ -77,11 +77,10 @@ public class Config extends AppCompatActivity {
 
 
         LinearLayoutArray=new LinearLayout[NLAYOUT];
-
         LinearLayoutArray[0] = findViewById(R.id.cambiarPassword);
-        LinearLayoutArray[1] = findViewById(R.id.cambiarPassword);
-        LinearLayoutArray[2] = findViewById(R.id.cerrarsesion);
-        LinearLayoutArray[3] = findViewById(R.id.eliminarcuenta);
+        LinearLayoutArray[1] = findViewById(R.id.cerrarsesion);
+        LinearLayoutArray[2] = findViewById(R.id.eliminarcuenta);
+
 
 
         for (int i = 0; i < NLAYOUT; i++) {
@@ -282,26 +281,19 @@ public class Config extends AppCompatActivity {
 
                             break;
                         case 1:
-                            // Acción para notificaciones
-                            Log.d("NOTIFICACIONES", "NOTIFICACIONES");
-
-
-
-
-                            break;
-                        case 2:
                             // Acción para CERRAR SESIÓN
                             Log.d("CERRAR_SESIÓN", "CERRAR SESION");
                             cerrarSesiondegoogleogeneral();
                             break;
 
-                        case 3:
+
+
+
+                        case 2:
                             // Acción para ELIMINAR CUENTA
                             Log.d("ELIMINAR_CUENTA", "ELIMINAR CUENTA");
 
                             alertdialogborrar();
-
-
 
                             break;
                     }

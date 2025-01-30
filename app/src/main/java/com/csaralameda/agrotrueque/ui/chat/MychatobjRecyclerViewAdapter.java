@@ -15,7 +15,12 @@ import com.csaralameda.agrotrueque.R;
 import com.csaralameda.agrotrueque.databinding.FragmentChatobjBinding;
 import com.csaralameda.agrotrueque.ui.anuncios.AnuncioDetalles;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 
 public class MychatobjRecyclerViewAdapter extends RecyclerView.Adapter<MychatobjRecyclerViewAdapter.ViewHolder> {
@@ -38,7 +43,7 @@ public class MychatobjRecyclerViewAdapter extends RecyclerView.Adapter<Mychatobj
         holder.mItem = mValues.get(position);
         holder.nombreusuario.setText(mValues.get(position).getNombreUser());
         holder.ultimomensaje.setText(mValues.get(position).getUltimoMensaje());
-        holder.horamensaje.setText(mValues.get(position).getUltimoMensajeHora());
+        holder.horamensaje.setText(gethoraTiempo(mValues.get(position).getUltimoMensajeHora()));
         if(mValues.get(position).getFotoUser() == null) {
             holder.fotousuario.setImageResource(R.drawable.avatar);
         } else {
@@ -75,5 +80,42 @@ public class MychatobjRecyclerViewAdapter extends RecyclerView.Adapter<Mychatobj
             fotousuario=binding.fotoUsuario;
         }
 
+    }
+
+    public static String gethoraTiempo(String dateString) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            Date past = sdf.parse(dateString);
+            Date now = new Date();
+
+            long timeInMillis = now.getTime() - past.getTime();
+
+            long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis);
+            long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
+            long days = TimeUnit.MILLISECONDS.toDays(timeInMillis);
+            long months = days / 30;
+
+
+            if (minutes < 1) {
+                return "Hace un momento";
+            } else if (minutes == 1) {
+                return "Hace 1 minuto";
+            } else if (hours < 1) {
+                return "Hace " + minutes + " minutos";
+            } else if (hours == 1) {
+                return "Hace 1 hora";
+            } else if (days < 1) {
+                return "Hace " + hours + " horas";
+            } else if (days == 1) {
+                return "Hace 1 día";
+            } else if (months < 1) {
+                return "Hace " + days + " días";
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return dateString; // Retorna el string original si hay error
+
+        }
+        return "";
     }
 }
