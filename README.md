@@ -35,7 +35,5 @@ AgroTrueque es una aplicación móvil diseñada para facilitar el intercambio de
 •Mapas y geolocalización: Google Maps API
 
 
-## 📷Capturas
-
 
 
