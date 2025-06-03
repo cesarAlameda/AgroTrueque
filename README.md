@@ -1,39 +1,35 @@
+# 🌿 AgroTrueque
 
-# AGROTRUEQUE
+Aplicación móvil desarrollada en **Java** para Android que permite a los usuarios intercambiar productos agrícolas de forma local. El sistema incluye un backend en **PHP** que sirve datos mediante una API REST alojada externamente, permitiendo funcionalidades como chat en vivo, gestión de anuncios y personalización de perfiles.
 
-AgroTrueque es una aplicación móvil diseñada para facilitar el intercambio de productos agrícolas y ganaderos entre comunidades rurales. Su objetivo es reducir el desperdicio de alimentos y fomentar la autosuficiencia de los productores mediante una plataforma intuitiva y eficiente.
+## 🚀 Tecnologías utilizadas
 
+### Cliente (App móvil)
+- **Java (Android SDK)**
+- **XML** para diseño de interfaces
+- **RetroFit** para consumo de la API REST
 
+### Servidor (Backend)
+- **PHP** para lógica del servidor
+- **MySQL** como base de datos
+- **API RESTful** alojada en un servidor externo
 
+## ✨ Características principales
 
-## 🚀Características
-•Registro e inicio de sesión seguro (incluye Google Sign-In).
-
-•Publicación y gestión de anuncios de productos.
-
-•Sistema de mensajería interna entre usuarios.
-
-•Geolocalización para facilitar intercambios cercanos.
-
-•Recuperación de cuentas y gestión de perfil.
-
-•Notificaciones mediante Firebase Cloud Messaging.
-
-
-
-## 🛠️ Tecnologías
-•Frontend: Java (Android Studio)
-
-•Backend: PHP (Hostinger)
-
-•Base de datos: MySQL
-
-•Consumo de APIs: Retrofit
-
-•Manejo de imágenes: Glide
-
-•Mapas y geolocalización: Google Maps API
+- 📢 Publicación y edición de anuncios de productos agrícolas
+- 💬 Sistema de chat en vivo entre usuarios
+- 👤 Registro, inicio de sesión y personalización del perfil
+- 📊 Filtrado de anuncios
+- 🔐 Validación de formularios y manejo de errores
 
 
+## 📅 Estado del proyecto
 
+Proyecto final de ciclo DAM con posibilidad de ampliación en futuras versiones (geolocalización, notificaciones push, etc).
 
+## 🧑‍💻 Autor
+
+**César Alameda Barquillo**  
+[GitHub](https://github.com/cesarAlameda) • [LinkedIn](https://linkedin.com/in/césar-alameda-barquillo-b059882b0)
+
+---
