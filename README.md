@@ -1,3 +1,4 @@
+[![Java](https://img.shields.io/badge/Java-Android-3DDC84?style=flat-square&logo=android&logoColor=white)](https://github.com/cesarAlameda/AgroTrueque)
 # 🌿 AgroTrueque
 
 Aplicación móvil desarrollada en **Java** para Android que permite a los usuarios intercambiar productos agrícolas de forma local. El sistema incluye un backend en **PHP** que sirve datos mediante una API REST alojada externamente, permitiendo funcionalidades como chat en vivo, gestión de anuncios y personalización de perfiles.
